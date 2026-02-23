@@ -54,7 +54,7 @@ class GameViewModel: ObservableObject {
         save()
     }
     
-    func fetchValues() {
+    func fetchPlayers() {
         let request = NSFetchRequest<Player>(entityName: "Player")
         
         do {
@@ -74,7 +74,7 @@ class GameViewModel: ObservableObject {
     
     func save() {
         manager.save()
-        fetchValues()
+        fetchPlayers()
     }
 }
 
