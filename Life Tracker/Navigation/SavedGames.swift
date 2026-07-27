@@ -21,6 +21,7 @@ class GameCollection {
 class GameViewModel: ObservableObject {
     public static var shared = GameViewModel()
     @Published var savedGames: [Game] = []
+    @Published var currentGame: Game?
     let manager = CoreDataManager.instance
     
     init() {
@@ -28,18 +29,17 @@ class GameViewModel: ObservableObject {
     }
     func fetchGames() {
         let request = NSFetchRequest<Game>(entityName: "Game")
-        DispatchQueue.main.async {
-            do {
-                
-                self.savedGames = try self.manager.context.fetch(request)
-                
-            } catch {}
-        }
+        do {
+            
+            self.savedGames = try self.manager.context.fetch(request)
+            
+        } catch {}
     }
     func addGame() {
         let game = Game(context: manager.context)
         game.date = Date()
         game.name = "Untitled"
+        currentGame = game
         save()
     }
     
@@ -78,6 +78,11 @@ class GameViewModel: ObservableObject {
         return yearOfGame == year
     }
     
+    func setPlayerCount(_ count: Int) {
+        currentGame?.playerCount = Int16(count)
+        save()
+    }
+    
     func sortGames() -> [GameCollection] {
         var sortedGames: [GameCollection] = []
         var processedGames: [Game] = []
@@ -114,7 +119,11 @@ class GameViewModel: ObservableObject {
             processedGames.append(contentsOf: gamesInYear)
             sortedGames.append(GameCollection(name: "\(yr)", games: gamesInYear))
         }
-        return sortedGames.filter { $0.games.count > 0}
+        sortedGames = sortedGames.filter { $0.games.count > 0}
+        for collection in sortedGames {
+            collection.games.sort(by: { $0.date! > $1.date!})
+        }
+        return sortedGames
         
     }
     
@@ -163,9 +172,7 @@ struct SavedGames: View {
                     }
                     .scrollContentBackground(.hidden)
                     .background(.black)
-                    .onTapGesture {
-                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                    }
+                    .scrollDismissesKeyboard(.immediately)
                     
                     if gameVM.savedGames.isEmpty {
                         Text("No Games")
@@ -212,6 +219,7 @@ struct GameRow: View {
                 .small()
             Button(action: {
                 isFocused = false
+                GameViewModel.shared.currentGame = game
                 InitialGameSettings.shared.newGame = false
                 PlayerViewModel.shared.setUp(game: game)
                 ValueViewModel.shared.setUp(game: game)

@@ -18,11 +18,16 @@ extension Image {
 }
 
 extension Text {
-    func numberStyle() -> some View {
+    func boldNumberStyle() -> some View {
         self
             .font(Font.custom("Rubik-Medium", size: 50))
+    }
+}
 
-        
+extension Text {
+    func numberStyle(_ size: Int) -> some View {
+        self
+            .font(Font.custom("Rubik-Regular", size: CGFloat(size)))
     }
 }
 
@@ -76,6 +81,13 @@ extension Text {
 
     }
 } //small
+
+extension Text {
+    func avenir(_ size: Int) -> some View {
+        self
+            .font(Font.custom("AvenirNextCondensed-Medium", size: CGFloat(size)))
+    }
+}
 
 extension Color {
     init(_ r: Double, _ g: Double, _ b: Double) {

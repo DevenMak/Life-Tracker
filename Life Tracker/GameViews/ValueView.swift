@@ -8,32 +8,36 @@
 import SwiftUI
 
 struct ValueView: View {
-    
+    @StateObject var valueVM = ValueViewModel.shared
     let player: Player
-    let value: Value
-    
+    @State var value: Value
+    var valueColor: Color {
+        Color(value.red, value.green, value.blue)
+    }
     var body: some View {
         ZStack {
+            UnevenRoundedRectangle(10, 0, 0, 0)
+                .fill(.white)
             VStack(spacing: 0) {
                 Button(action: {
-                    ValueViewModel.shared.increaseValue(value)
+                    valueVM.increaseValue(value)
                 }) {
                     UnevenRoundedRectangle(10,0,0,0)
-                        .fill(Color(value.red, value.green, value.blue))
+                        .fill(valueColor)
                 }
                 Button(action: {
-                    ValueViewModel.shared.decreaseValue(value)
+                    valueVM.decreaseValue(value)
                 }) {
                     Rectangle()
-                        .fill(Color(value.red, value.green, value.blue))
+                        .fill(valueColor)
                 }
             }
             VStack(spacing: 0) {
                 Spacer()
                 Text("\(value.count)")
-                    .numberStyle()
+                    .boldNumberStyle()
                 if let iconName = value.iconName {
-                    ValueViewModel.shared.getIcon(iconName)
+                    valueVM.getIcon(iconName)
                 }
                 Spacer()
                 
@@ -43,7 +47,7 @@ struct ValueView: View {
                     .minimumScaleFactor(0.5)
                     .padding()
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(contrastTextColor(valueColor))
         }
     }
 }

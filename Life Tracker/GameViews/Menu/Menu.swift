@@ -81,13 +81,11 @@ struct Menu: View {
                     ForEach(defaultValues, id: \.self) { value in
                         //DEFAULT BUTTONS
                         Button(action: {
-                            withAnimation {
-                                valueVM.selectValue(name: value.name, count: value.count, iconName: value.iconName, rgb: value.rgb)
-                                DispatchQueue.main.async {
-                                    print(valueVM.values.map {$0.name})
-                                }
-
+                            valueVM.selectValue(name: value.name, count: value.count, iconName: value.iconName, rgb: value.rgb, custom: false)
+                            DispatchQueue.main.async {
+                                print(valueVM.values.map {$0.name})
                             }
+
                         }) {
                             VStack {
                                 Text("\(value.name)")

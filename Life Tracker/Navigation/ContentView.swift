@@ -36,25 +36,45 @@ struct ContentView: View {
                     Text("Game")
                         .heading()
                         .foregroundStyle(.white)
+                        .padding()
                     
-                    VStack {
-                        Button("New Game") {
-                            InitialGameSettings.shared.newGame = true
-                            gameVM.addGame()
-                            path.navPath.append(Route.lifeSelection)
-                        }
-                        
+                    Spacer()
+                }
+                    
+                VStack(spacing: 90) {
+                    Button(action: {
+                        InitialGameSettings.shared.newGame = true
+                        path.navPath.append(Route.lifeSelection)
+                    }) {
+                        Text("New Game")
+                            .avenir(25)
+                            .foregroundStyle(Color.accent)
+                            .padding()
+                            .background(.black)
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(.accent, lineWidth: 2)
+                                
+                            )
                     }
                     
-                    VStack {
-                        Button("Saved Game") {
-                            path.navPath.append(Route.savedGames)
-                        }
-                        
+                    Button(action: {
+                        path.navPath.append(Route.savedGames)
+                    }) {
+                        Text("Saved Game")
+                            .avenir(25)
+                            .foregroundStyle(Color.accent)
+                            .padding()
+                            .background(.black)
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(.accent, lineWidth: 2)
+                                
+                            )
                     }
                 }
-                
-                
             }
             .navigationDestination(for: Route.self) { route in
                 switch route {

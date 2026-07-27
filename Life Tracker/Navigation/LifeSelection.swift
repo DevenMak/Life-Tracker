@@ -20,22 +20,41 @@ struct LifeSelection: View {
                 Text("Life")
                     .heading()
                     .foregroundStyle(.white)
-                
-                VStack {
-                    Button("20") {
-                        InitialGameSettings.shared.startingLife = 20
-                        path.navPath.append(Route.playerSelection)
+                    .padding()
+                Spacer()
+            }
+            VStack(spacing: 90) {
+                Button(action: {
+                    InitialGameSettings.shared.startingLife = 20
+                    path.navPath.append(Route.playerSelection)
+                }) {
+                    ZStack {
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 43))
+                            .foregroundStyle(.accent)
+                        Text("20")
+                            .numberStyle(80)
+                            .foregroundStyle(.white)
+                            .opacity(0.65)
                     }
-                    
                 }
                 
-                VStack {
-                    Button("40") {
-                        InitialGameSettings.shared.startingLife = 40
-                        path.navPath.append(Route.playerSelection)
+                
+                Button(action: {
+                    InitialGameSettings.shared.startingLife = 40
+                    path.navPath.append(Route.playerSelection)
+                }) {
+                    ZStack {
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 43))
+                            .foregroundStyle(.accent)
+                        Text("40")
+                            .numberStyle(80)
+                            .foregroundStyle(.white)
+                            .opacity(0.65)
                     }
-                    
                 }
+                
             }
         }
         .navigationBarBackButtonHidden()
@@ -48,7 +67,7 @@ struct LifeSelection: View {
                          .resizable()
                          .renderingMode(.template)
                          .frame(width: imageWidth*scale, height: imageHeight*scale)
-                         .foregroundStyle(.white)
+                         .foregroundStyle(.accent)
                  }
              }
          }

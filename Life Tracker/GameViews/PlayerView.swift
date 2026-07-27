@@ -58,9 +58,9 @@ class ValueViewModel: ObservableObject {
     func fetchValues() {
         let request = NSFetchRequest<Value>(entityName: "Value")
         do {
-            self.values = try self.manager.context.fetch(request)
+            self.values = try self.manager.context.fetch(request)  // sets ALL values
             if let gameValues = self.game?.values?.allObjects as? [Value] {
-                self.values = gameValues
+                self.values = gameValues  // then immediately overwrites with game values
             }
         } catch {}
     }
@@ -126,15 +126,19 @@ class ValueViewModel: ObservableObject {
         save()
     }
     
-    func selectValue(name: String, count: Int, iconName: String, rgb: (Double, Double, Double)) {
+    func selectValue(name: String, count: Int, iconName: String, rgb: (Double, Double, Double), custom: Bool) {
         let allowedValues = 1
-        if values.contains(where: {$0.name == name}) {
-            deleteValueFromGame(name)
-        } else {
-            if(values.count >= allowedValues) {
-                deleteValueFromGame(values.first!.name!)
+        withAnimation {
+            if values.contains(where: {$0.name == name}) && !custom {
+                deleteValueFromGame(name)
+            } else {
+                if(values.count >= allowedValues) {
+                    deleteValueFromGame(values.first!.name!)
+                }
+                DispatchQueue.main.async {
+                    self.addValueToPlayers(name, count, iconName, rgb)
+                }
             }
-            addValueToPlayers(name, count, iconName, rgb)
         }
     }
     
@@ -152,7 +156,12 @@ class ValueViewModel: ObservableObject {
     
     func save() {
         manager.save()
-        fetchValues()
+        DispatchQueue.main.async {
+            withAnimation {
+                self.fetchValues()
+
+            }
+        }
     }
     
 }
@@ -161,13 +170,22 @@ struct PlayerView: View {
     
     @ObservedObject var player: Player
     @State var show = false
+    @ObservedObject var valueVM = ValueViewModel.shared
+        
+    var playerValues: [Value] {
+        valueVM.values.filter { $0.player?.objectID == player.objectID }
+    }
+       
     var body: some View {
         ZStack {
+            UnevenRoundedRectangle(10, 0, 0, 10)
+                .fill(.white)
             HStack(spacing: 0) {
-                if let values = player.values?.allObjects as? [Value], !values.isEmpty {
+                if let value = playerValues.first {
                     
-                    ValueView(player: player, value: values.first!)
+                    ValueView(player: player, value: value)
                         .frame(maxWidth: 100)
+                        .transition(.move(edge: .leading))
                         
                 }
                 ZStack {
@@ -176,18 +194,18 @@ struct PlayerView: View {
                             PlayerViewModel.shared.addLife(player)
                         }) {
                             UnevenRoundedRectangle(ValueViewModel.shared.fetchPlayerValues(player).isEmpty ? 10 : 0,0,0,10)
-                                .fill(.blue)
+                                .fill(Color(player.color ?? "Player1"))
                         }
                         Button(action: {
                             PlayerViewModel.shared.loseLife(player)
                         }) {
                             Rectangle()
-                                .fill(.blue)
+                                .fill(Color(player.color ?? "Player1"))
                         }
                     }
                     VStack(spacing: 0) {
                         Text("\(player.life)")
-                            .numberStyle()
+                            .boldNumberStyle()
                         Image("heartIcon")
                             .iconStyle()
                     }
@@ -196,6 +214,7 @@ struct PlayerView: View {
                 }
             }
         }
+
     }
 }
 

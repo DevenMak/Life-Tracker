@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CustomForm: View {
     @State var nameText: String = "Other"
-    @State var color: Color = colors[12]
+    @State var color: Color = colors[40]
     @State var showColorPicker = false
     @FocusState private var isFocused: Bool
     @State private var selection: TextSelection? = nil
@@ -88,7 +88,7 @@ struct CustomForm: View {
                         }
                         VStack(spacing: 0) {
                             Text("0")
-                                .numberStyle()
+                                .boldNumberStyle()
                             Image(systemName: "questionmark.circle")
                                 .iconStyle()
                         }
@@ -118,7 +118,7 @@ struct CustomForm: View {
                         )
                         Spacer()
                         Button(action: {
-                            ValueViewModel.shared.selectValue(name: String(nameText), count: 0, iconName: "customIcon", rgb: color.toRGB() ?? (125, 125, 125))
+                            ValueViewModel.shared.selectValue(name: String(nameText), count: 0, iconName: "customIcon", rgb: color.toRGB() ?? (125, 125, 125), custom: true)
                             withAnimation {
                                 showCustomForm = false
                             }

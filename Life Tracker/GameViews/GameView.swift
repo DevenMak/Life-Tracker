@@ -25,8 +25,8 @@ class PlayerViewModel: ObservableObject {
         if InitialGameSettings.shared.newGame {
             self.players = []
             //add players
-            for i in 0..<InitialGameSettings.shared.playerCount {
-                addPlayer(i, InitialGameSettings.shared.startingLife)
+            for i in 1...InitialGameSettings.shared.playerCount {
+                addPlayer(InitialGameSettings.shared.startingLife, "Player\(i)")
             }
         }
         save()
@@ -43,16 +43,11 @@ class PlayerViewModel: ObservableObject {
         }
     }
     
-    func addPlayer(_ number: Int, _ life: Int) {
+    func addPlayer(_ life: Int, _ color: String) {
 
-        for player in players {
-            if player.number == Int16(number) {
-                return
-            }
-        }
         let player = Player(context: manager.context)
-        player.number = Int16(number)
         player.life = Int16(life)
+        player.color = color
         player.game = game
         save()
 
@@ -118,7 +113,7 @@ struct GameView: View {
                 .blur(radius: menuOpen ? 5 : 0)
 
                 Color.black.ignoresSafeArea(edges: .all)
-                    .opacity(menuOpen ? 0.9 : 0)
+                    .opacity(menuOpen ? 0.85 : 0)
                 
 
                 Menu(showMenu: $menuOpen)

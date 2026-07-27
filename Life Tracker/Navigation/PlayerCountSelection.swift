@@ -20,18 +20,29 @@ struct PlayerCountSelection: View {
      }
     var body: some View {
         @StateObject var path = Path.shared
-        
-        
+
         ZStack {
             Color.black.ignoresSafeArea()
+            VStack() {
+                Text("Players")
+                    .heading()
+                    .foregroundStyle(.white)
+                    .padding()
+                Spacer()
+            }
             VStack {
-                Button("2 Players") {
+                Button(action: {
+                    GameViewModel.shared.addGame()
+                    guard let game = GameViewModel.shared.currentGame else { return }
+                    GameViewModel.shared.setPlayerCount(2)
                     InitialGameSettings.shared.playerCount = 2
-                    PlayerViewModel.shared.setUp(game: GameViewModel.shared.savedGames.last!)
-                    ValueViewModel.shared.setUp(game: GameViewModel.shared.savedGames.last!)
+                    PlayerViewModel.shared.setUp(game: game)
+                    ValueViewModel.shared.setUp(game: game)
 
                     print(InitialGameSettings.shared.startingLife)
                     path.navPath.append(Route.game)
+                }) {
+                    PlayerButton(numPlayers: 2)
                 }
             }
         }
@@ -52,6 +63,50 @@ struct PlayerCountSelection: View {
     }
 }
 
-//#Preview {
-//    PlayerCountSelection()
-//}
+#Preview {
+    PlayerCountSelection()
+}
+
+struct PlayerButton: View {
+    var numPlayers: Int
+    
+    let image = UIImage(named: "playerIcon")
+    
+    
+    
+    var body: some View {
+        VStack {
+            ZStack {
+                ForEach(1...numPlayers, id: \.self) { number in
+                    
+                    let imageHeight = image!.size.height
+                    let imageWidth = image!.size.width
+                    let scale = 50.0/max(imageHeight, imageWidth)
+                    
+                    Image("playerIcon")
+                        .renderingMode(.template)
+                        .resizable()
+                        .foregroundStyle(.red)
+                        .opacity(1-Double((numPlayers-number))*0.2)
+                        .frame(width: imageWidth*scale, height: imageHeight*scale)
+                        .offset(x: 15*CGFloat(number-1),  y: 10*CGFloat(number-1))
+                    
+                    
+                }
+                .offset(x: CGFloat(-1*(7.5*Double(numPlayers-1))), y: CGFloat(-1*(5*Double(numPlayers-1))))
+                
+                
+            }
+            Text("\(numPlayers) Player")
+                .font(
+                    .custom(
+                        "AvenirNextCondensed-Regular",
+                        size: 40)
+                    .weight(.medium)
+                    
+                )
+                .foregroundStyle(.white)
+                .opacity(0.65)
+        }
+    }
+}
