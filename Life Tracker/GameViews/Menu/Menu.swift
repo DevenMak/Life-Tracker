@@ -82,9 +82,6 @@ struct Menu: View {
                         //DEFAULT BUTTONS
                         Button(action: {
                             valueVM.selectValue(name: value.name, count: value.count, iconName: value.iconName, rgb: value.rgb, custom: false)
-                            DispatchQueue.main.async {
-                                print(valueVM.values.map {$0.name})
-                            }
 
                         }) {
                             VStack {

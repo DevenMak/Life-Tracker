@@ -26,6 +26,7 @@ struct LifeSelection: View {
             VStack(spacing: 90) {
                 Button(action: {
                     InitialGameSettings.shared.startingLife = 20
+                    InitialGameSettings.shared.commander = false
                     path.navPath.append(Route.playerSelection)
                 }) {
                     ZStack {
@@ -42,6 +43,7 @@ struct LifeSelection: View {
                 
                 Button(action: {
                     InitialGameSettings.shared.startingLife = 40
+                    InitialGameSettings.shared.commander = true
                     path.navPath.append(Route.playerSelection)
                 }) {
                     ZStack {

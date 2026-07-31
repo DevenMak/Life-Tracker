@@ -46,11 +46,12 @@ class ValueViewModel: ObservableObject {
     @Published var game: Game?
     @Published var values: [Value] = []
     
-    
     func setUp(game: Game) {
         self.game = game
         if InitialGameSettings.shared.newGame {
             self.values = []
+            self.game!.value1 = ""
+            self.game!.value2 = ""
         }
         save()
     }
@@ -58,9 +59,9 @@ class ValueViewModel: ObservableObject {
     func fetchValues() {
         let request = NSFetchRequest<Value>(entityName: "Value")
         do {
-            self.values = try self.manager.context.fetch(request)  // sets ALL values
+            self.values = try self.manager.context.fetch(request)
             if let gameValues = self.game?.values?.allObjects as? [Value] {
-                self.values = gameValues  // then immediately overwrites with game values
+                self.values = gameValues
             }
         } catch {}
     }
@@ -74,13 +75,6 @@ class ValueViewModel: ObservableObject {
     
     func addValue(_ player: Player, _ name: String, _ count: Int, _ iconName: String, _ rgb: (Double, Double, Double)) {
         
-        if let playerValues = player.values?.allObjects as? [Value] {
-            for value in playerValues {
-                if value.name == name && value.iconName == iconName{
-                    return
-                }
-            }
-        }
         let value = Value(context: manager.context)
         value.player = player
         value.game = game
@@ -110,11 +104,8 @@ class ValueViewModel: ObservableObject {
     }
     
     func deleteValue(_ value: Value) {
-        
-        withAnimation {
-            manager.context.delete(value)
-            save()
-        }
+        manager.context.delete(value)
+        save()
     }
     
     func deleteValueFromGame(_ valueName: String) {
@@ -126,20 +117,46 @@ class ValueViewModel: ObservableObject {
         save()
     }
     
+    
     func selectValue(name: String, count: Int, iconName: String, rgb: (Double, Double, Double), custom: Bool) {
-        let allowedValues = 1
-        withAnimation {
-            if values.contains(where: {$0.name == name}) && !custom {
-                deleteValueFromGame(name)
-            } else {
-                if(values.count >= allowedValues) {
-                    deleteValueFromGame(values.first!.name!)
+        let valueName = name
+        let valueIsInGame = game!.value1 == valueName || game!.value2 == valueName
+        if !valueIsInGame {
+            withAnimation(.easeIn(duration: 0.25)) {
+                if game!.value1 == "" {
+                    game!.value1 = valueName
+                    ValueCoordinator.shared.show1 = true
+                } else if game!.value2 == "" {
+                    game!.value2 = valueName
+                    ValueCoordinator.shared.show2 = true
+                } else {
+                    game!.value2 = valueName
+                    //AnimationCoordinator.shared.animateOut = valueName
                 }
-                DispatchQueue.main.async {
-                    self.addValueToPlayers(name, count, iconName, rgb)
+            } completion: {
+                DispatchQueue.main.asyncAfter(deadline: .now()) {
+                    self.deleteValueFromGame(valueName)
+                }
+                self.addValueToPlayers(name, count, iconName, rgb)
+            }
+
+        } else {
+            withAnimation(.easeIn(duration: 0.25)) {
+                if game!.value1 == valueName {
+                    game!.value1 = ""
+                    ValueCoordinator.shared.show1 = false
+                } else {
+                    game!.value2 = ""
+                    ValueCoordinator.shared.show2 = false
+                }
+            } completion: {
+                DispatchQueue.main.asyncAfter(deadline: .now()) {
+                    self.deleteValueFromGame(valueName)
                 }
             }
+            //AnimationCoordinator.shared.animateOut = valueName
         }
+        print("\(game!.value1!), \(game!.value2!)")
     }
     
     func changeIconName(_ value: Value, _ iconName: String) {
@@ -171,29 +188,23 @@ struct PlayerView: View {
     @ObservedObject var player: Player
     @State var show = false
     @ObservedObject var valueVM = ValueViewModel.shared
-        
+    @StateObject var coordinator = ValueCoordinator.shared
+    
     var playerValues: [Value] {
-        valueVM.values.filter { $0.player?.objectID == player.objectID }
+        ValueViewModel.shared.fetchPlayerValues(player)
     }
        
     var body: some View {
         ZStack {
             UnevenRoundedRectangle(10, 0, 0, 10)
                 .fill(.white)
-            HStack(spacing: 0) {
-                if let value = playerValues.first {
-                    
-                    ValueView(player: player, value: value)
-                        .frame(maxWidth: 100)
-                        .transition(.move(edge: .leading))
-                        
-                }
+            GeometryReader { geo in
                 ZStack {
                     VStack(spacing: 0) {
                         Button(action: {
                             PlayerViewModel.shared.addLife(player)
                         }) {
-                            UnevenRoundedRectangle(ValueViewModel.shared.fetchPlayerValues(player).isEmpty ? 10 : 0,0,0,10)
+                            UnevenRoundedRectangle(10,0,0,10)
                                 .fill(Color(player.color ?? "Player1"))
                         }
                         Button(action: {
@@ -211,6 +222,27 @@ struct PlayerView: View {
                     }
                     .allowsHitTesting(false)
                     .foregroundStyle(.white)
+                    
+                    let x = geo.size.width
+                    let y = geo.size.height
+                    
+                    if coordinator.show1 {
+                        CounterView(size: geo.size, player: player, slot: 1)
+                            .transition(
+                                ZoomTransition(size: geo.size, x: 0, y: y)
+                            )
+                            .position(x: 0, y: geo.size.height)
+                            
+                    }
+                    if coordinator.show2 {
+                        
+                        CounterView(size: geo.size, player: player, slot: 2)
+                            .transition(
+                                ZoomTransition(size: geo.size, x: x, y: y)
+                            )
+                            .position(x: x, y: y)
+                            
+                    }
                 }
             }
         }
