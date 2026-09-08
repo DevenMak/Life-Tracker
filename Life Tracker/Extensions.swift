@@ -17,6 +17,16 @@ extension Image {
     }
 }
 
+extension Image {
+    func counterIconStyle() -> some View {
+        self
+            .renderingMode(.template)
+            .resizable()
+            .frame(width: 20, height: 20)
+        
+    }
+}
+
 extension Text {
     func boldNumberStyle() -> some View {
         self
@@ -93,4 +103,18 @@ extension Color {
     init(_ r: Double, _ g: Double, _ b: Double) {
         self.init(red: r/255, green: g/255, blue: b/255)
     }
+}
+
+struct ExpandingButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 1.2 : 1.0)
+            // Smoothly animate the expansion and recovery
+            .animation(.spring(), value: configuration.isPressed)
+    }
+}
+
+// Global convenience extension
+extension ButtonStyle where Self == ExpandingButtonStyle {
+    static var expanding: ExpandingButtonStyle { ExpandingButtonStyle() }
 }

@@ -139,6 +139,10 @@ class GameViewModel: ObservableObject {
 }
 
 struct SavedGames: View {
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    var backButtonPlacement: ToolbarItemPlacement {
+         ToolbarItemPlacement.navigationBarLeading
+     }
     @StateObject var gameVM = GameViewModel.shared
     var sortedGames: [GameCollection] {
         gameVM.sortGames()
@@ -170,8 +174,11 @@ struct SavedGames: View {
                             }
                         }
                     }
-                    .scrollContentBackground(.hidden)
-                    .background(.black)
+                   .scrollContentBackground(.hidden)
+                    .background(
+                        Color.black
+                    )
+                    
                     .scrollDismissesKeyboard(.immediately)
                     
                     if gameVM.savedGames.isEmpty {
@@ -182,13 +189,28 @@ struct SavedGames: View {
                 }
             }
         }
+        .navigationBarBackButtonHidden()
+        .toolbar {
+             ToolbarItem(placement: backButtonPlacement) {
+                 Button {
+                     self.presentationMode.wrappedValue.dismiss()
+                 } label: {
+                     Image(systemName: "arrow.left")
+                         .resizable()
+                         .renderingMode(.template)
+                         .frame(width: imageWidth*scale, height: imageHeight*scale)
+                         .foregroundStyle(.accent)
+                 }
+             }
+         }
+
     }
 }
 
 struct GameRow: View {
     
     var game: Game
-    let characterLimit = 11
+    let characterLimit = 20
     @State private var nameText: String = ""
     @FocusState private var isFocused: Bool
 
@@ -211,6 +233,7 @@ struct GameRow: View {
                     }
                     GameViewModel.shared.changeGameName(game: game, name: nameText)
                 }
+                .autocorrectionDisabled(true)
                 .onAppear {
                     nameText = game.name ?? ""
                 }

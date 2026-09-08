@@ -22,10 +22,15 @@ struct ValueType: Hashable, Equatable {
     }
 }
 
+let poisonColor = Color(hex: "A9CBB7")!.toRGB() ?? (0,0,0)
+let energyColor = Color(hex: "daff7d")!.toRGB()  ?? (0,0,0)
+
+//92DCE5 //C6E0FF
+let stormColor = Color(hex: "C6E0FF")!.toRGB()  ?? (0,0,0)
 let defaultValues = [
-    ValueType(name: "Poison", count: 0, iconName: "poisonIcon", rgb: (97, 222, 42)),
-    ValueType(name: "Energy", count: 0, iconName: "energyIcon", rgb: (255, 222, 33)),
-    ValueType(name: "Storm", count: 0, iconName: "stormIcon", rgb: (159,159,159))
+    ValueType(name: "Poison", count: 0, iconName: "poisonIcon", rgb: poisonColor),
+    ValueType(name: "Energy", count: 0, iconName: "energyIcon", rgb: energyColor),
+    ValueType(name: "Storm", count: 0, iconName: "stormIcon", rgb: stormColor)
 
 ]
 

@@ -80,7 +80,12 @@ struct ContentView: View {
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .game:
-                    GameView()
+                    let playerCount = GameViewModel.shared.currentGame!.playerCount
+                    if playerCount == 2 {
+                        TwoPlayerGame()
+                    } else if playerCount == 4 {
+                        FourPlayerGame()
+                    }
                 case .playerSelection:
                     PlayerCountSelection()
                 case .lifeSelection:

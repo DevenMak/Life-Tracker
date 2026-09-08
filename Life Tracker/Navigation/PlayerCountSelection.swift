@@ -44,6 +44,19 @@ struct PlayerCountSelection: View {
                 }) {
                     PlayerButton(numPlayers: 2)
                 }
+                Button(action: {
+                    GameViewModel.shared.addGame()
+                    guard let game = GameViewModel.shared.currentGame else { return }
+                    GameViewModel.shared.setPlayerCount(4)
+                    InitialGameSettings.shared.playerCount = 4
+                    PlayerViewModel.shared.setUp(game: game)
+                    ValueViewModel.shared.setUp(game: game)
+
+                    print(InitialGameSettings.shared.startingLife)
+                    path.navPath.append(Route.game)
+                }) {
+                    PlayerButton(numPlayers: 4)
+                }
             }
         }
         .navigationBarBackButtonHidden()
@@ -56,7 +69,7 @@ struct PlayerCountSelection: View {
                          .resizable()
                          .renderingMode(.template)
                          .frame(width: imageWidth*scale, height: imageHeight*scale)
-                         .foregroundStyle(.white)
+                         .foregroundStyle(.accent)
                  }
              }
          }

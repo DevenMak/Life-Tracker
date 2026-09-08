@@ -26,8 +26,9 @@ class PlayerViewModel: ObservableObject {
             self.players = []
             //add players
             for i in 1...InitialGameSettings.shared.playerCount {
-                addPlayer(InitialGameSettings.shared.startingLife, "Player\(i)")
+                addPlayer(InitialGameSettings.shared.startingLife, "Player2.\(i)")
             }
+            self.game!.commander = InitialGameSettings.shared.commander
         }
         save()
     }
@@ -49,6 +50,9 @@ class PlayerViewModel: ObservableObject {
         player.life = Int16(life)
         player.color = color
         player.game = game
+        player.cd1 = 0
+        player.cd2 = 0
+        player.cd3 = 0
         save()
 
     }
@@ -68,13 +72,41 @@ class PlayerViewModel: ObservableObject {
         save()
     }
     
+    func increaseCD(player: Player, cd: Int) {
+        switch cd {
+        case 1: player.cd1 += 1
+        case 2: player.cd2 += 1
+        case 3: player.cd3 += 1
+        default: break
+        }
+    }
+    
+    func decreaseCD(player: Player, cd: Int) {
+        switch cd {
+        case 1: player.cd1 -= 1
+        case 2: player.cd2 -= 1
+        case 3: player.cd3 -= 1
+        default: break
+        }
+    }
+    
+    func getCD(player: Player, cd: Int) -> Int {
+        switch cd {
+        case 1: return Int(player.cd1)
+        case 2: return Int(player.cd2)
+        case 3: return Int(player.cd3)
+        default: return 0
+        }
+    }
+    
     func save() {
         manager.save()
         fetchPlayers()
     }
 }
 
-struct GameView: View {
+let spacingBetweenPlayerViews: CGFloat = 7
+struct TwoPlayerGame: View {
     @State var menuOpen: Bool = false
     var body: some View {
         GeometryReader { geo in
@@ -82,7 +114,7 @@ struct GameView: View {
                 ZStack {
                     Color.black.ignoresSafeArea()
                     
-                    VStack(spacing: 7) {
+                    VStack(spacing: spacingBetweenPlayerViews) {
                         PlayerView(player: PlayerViewModel.shared.players[0])
                             .rotationEffect(.degrees(180))
                         PlayerView(player: PlayerViewModel.shared.players[1])
@@ -92,21 +124,23 @@ struct GameView: View {
                     .ignoresSafeArea()
                     
                     
-                    Circle()
-                        .fill(Color.white)
-                        .stroke(.black, lineWidth: 7)
-                        .frame(width: 40, height: 40)
-                        .overlay(
-                            Image(systemName: "circle.grid.3x3.fill")
-                                .renderingMode(.template)
-                                .foregroundStyle(.black)
-                        )
-                        .offset(y: -0.5*(geo.safeAreaInsets.top-geo.safeAreaInsets.bottom))
-                        .onTapGesture {
-                            withAnimation {
-                                menuOpen = true
-                            }
+                    Button(action: {
+                        withAnimation {
+                            menuOpen = true
                         }
+                    }) {
+                        Circle()
+                            .fill(Color.white)
+                            .stroke(.black, lineWidth: spacingBetweenPlayerViews)
+                            .frame(width: 40, height: 40)
+                            .overlay(
+                                Image(systemName: "circle.grid.3x3.fill")
+                                    .renderingMode(.template)
+                                    .foregroundStyle(.black)
+                            )
+                            .offset(y: -0.5*(geo.safeAreaInsets.top-geo.safeAreaInsets.bottom))
+                    }
+                    .buttonStyle(.expanding)
                     
                 }
                 .compositingGroup()
@@ -120,15 +154,6 @@ struct GameView: View {
                     .opacity(menuOpen ? 1 : 0)
                     
             }
-            .onAppear {
-                if InitialGameSettings.shared.newGame {
-                    for player in PlayerViewModel.shared.players {
-                        PlayerViewModel.shared.setLife(player, InitialGameSettings.shared.startingLife)
-                    }
-                }
-                
-                print(GameViewModel.shared.savedGames.count)
-            }
         }
         .navigationBarBackButtonHidden()
 
@@ -137,5 +162,5 @@ struct GameView: View {
 }
 
 #Preview {
-    GameView()
+    TwoPlayerGame()
 }
