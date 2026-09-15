@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreData
+import Foundation
 
 class GameCollection {
     var name: String
@@ -59,16 +60,14 @@ class GameViewModel: ObservableObject {
         // Returns the entire 7-day interval containing the date
         guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: Date()) else { return false }
         
-        // Check if the date is within that range and NOT today
         return weekInterval.contains(date)
     }
     
     func isDateInThisMonth(_ date: Date) -> Bool {
         let calendar = Calendar.current
         
-        // Check if the Month and Year match the current date
         let isSameMonth = calendar.isDate(date, equalTo: Date(), toGranularity: .month)
-                
+        
         return isSameMonth
     }
     
@@ -82,6 +81,11 @@ class GameViewModel: ObservableObject {
         currentGame?.playerCount = Int16(count)
         save()
     }
+    
+    let monthNames: [String] = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ]
     
     func sortGames() -> [GameCollection] {
         var sortedGames: [GameCollection] = []
@@ -106,9 +110,13 @@ class GameViewModel: ObservableObject {
         processedGames.append(contentsOf: thisWeekGames)
         sortedGames.append(GameCollection(name: "This Week", games: thisWeekGames))
         
-        let thisMonthGames: [Game] = savedGames.filter { isDateInThisMonth($0.date!) && !processedGames.contains($0)}
-        processedGames.append(contentsOf: thisMonthGames)
-        sortedGames.append(GameCollection(name: "This Month", games: thisMonthGames))
+        let thisMonth: Int = calendar.component(.month, from: Date())
+        for month in 1...12 {
+            let gamesInMonth: [Game] = savedGames.filter { calendar.component(.month, from: $0.date!) == month && !processedGames.contains($0)}
+            processedGames.append(contentsOf: gamesInMonth)
+            let collectionName = month == thisMonth ? "This Month" : "\(monthNames[month-1])"
+            sortedGames.append(GameCollection(name: collectionName, games: gamesInMonth))
+        }
         
         let thisYearGames: [Game] = savedGames.filter { isDateInYear(date: $0.date!, year: calendar.component(.year, from: Date())) && !processedGames.contains($0)}
         processedGames.append(contentsOf: thisYearGames)
@@ -123,6 +131,7 @@ class GameViewModel: ObservableObject {
         for collection in sortedGames {
             collection.games.sort(by: { $0.date! > $1.date!})
         }
+        sortedGames.sort(by: {$0.games.first!.date! > $1.games.first!.date!})
         return sortedGames
         
     }
@@ -138,11 +147,34 @@ class GameViewModel: ObservableObject {
     }
 }
 
+class Settings: ObservableObject {
+    @Published var autoSave = false {
+        didSet {
+            let encoder = JSONEncoder()
+            
+            if let encoded = try? encoder.encode(autoSave) {
+                UserDefaults.standard.set(encoded, forKey: "autoSave")
+            }
+        }
+    }
+    init() {
+        if let savedAutoSave = UserDefaults.standard.data(forKey: "autoSave") {
+            if let decodedAutoSave = try? JSONDecoder().decode(Bool.self, from: savedAutoSave) {
+                autoSave = decodedAutoSave
+            }
+        }
+    }
+}
 struct SavedGames: View {
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    var backButtonPlacement: ToolbarItemPlacement {
+         ToolbarItemPlacement.navigationBarLeading
+     }
     @StateObject var gameVM = GameViewModel.shared
     var sortedGames: [GameCollection] {
         gameVM.sortGames()
     }
+    @StateObject var settings = Settings()
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea(edges: .all)
@@ -155,24 +187,44 @@ struct SavedGames: View {
                     .foregroundStyle(.white)
                     .padding(.bottom, -10)
                 ZStack {
-                    List() {
-                        ForEach(sortedGames, id: \.games) { collection in
-                            Section(header: Text(collection.name).foregroundStyle(Color.accentColor)) {
-                                ForEach(collection.games, id: \.self) { game in
-                                    GameRow(game: game)
-                                }
-                                .onDelete { indexSet in
-                                    for index in indexSet {
-                                        gameVM.deleteGame(collection.games[index])
-                                    }
-                                }
-                                
+                    VStack {
+                        HStack {
+                            Toggle(isOn: $settings.autoSave) {
+                                Text("Auto Save")
+                                    .regular()
+                                    .foregroundStyle(.accent)
                             }
+                            .tint(.accent)
                         }
+                        .frame(maxWidth: 150, maxHeight: 55)
+                        .padding(.horizontal)
+                        .background(.regularMaterial)
+                        .cornerRadius(20)
+                        
+                        
+                        List() {
+                            ForEach(sortedGames, id: \.games) { collection in
+                                Section(header: Text(collection.name).foregroundStyle(Color.accentColor)) {
+                                    ForEach(collection.games, id: \.self) { game in
+                                        GameRow(game: game)
+                                    }
+                                    .onDelete { indexSet in
+                                        for index in indexSet {
+                                            gameVM.deleteGame(collection.games[index])
+                                        }
+                                    }
+                                    
+                                }
+                            }
+                            
+                        }
+                        .scrollContentBackground(.hidden)
+                        .background(
+                            Color.black
+                        )
+                        
+                        .scrollDismissesKeyboard(.immediately)
                     }
-                    .scrollContentBackground(.hidden)
-                    .background(.black)
-                    .scrollDismissesKeyboard(.immediately)
                     
                     if gameVM.savedGames.isEmpty {
                         Text("No Games")
@@ -182,13 +234,28 @@ struct SavedGames: View {
                 }
             }
         }
+        .navigationBarBackButtonHidden()
+        .toolbar {
+             ToolbarItem(placement: backButtonPlacement) {
+                 Button {
+                     self.presentationMode.wrappedValue.dismiss()
+                 } label: {
+                     Image(systemName: "arrow.left")
+                         .resizable()
+                         .renderingMode(.template)
+                         .frame(width: imageWidth*scale, height: imageHeight*scale)
+                         .foregroundStyle(.accent)
+                 }
+             }
+        }
+
     }
 }
 
 struct GameRow: View {
     
     var game: Game
-    let characterLimit = 11
+    let characterLimit = 20
     @State private var nameText: String = ""
     @FocusState private var isFocused: Bool
 
@@ -211,6 +278,7 @@ struct GameRow: View {
                     }
                     GameViewModel.shared.changeGameName(game: game, name: nameText)
                 }
+                .autocorrectionDisabled(true)
                 .onAppear {
                     nameText = game.name ?? ""
                 }

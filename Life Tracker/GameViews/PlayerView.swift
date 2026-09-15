@@ -45,22 +45,28 @@ class ValueViewModel: ObservableObject {
     public static var shared = ValueViewModel()
     @Published var game: Game?
     @Published var values: [Value] = []
-    
+    private var animating: Bool = false
     
     func setUp(game: Game) {
         self.game = game
         if InitialGameSettings.shared.newGame {
             self.values = []
+            self.game!.value1 = InitialGameSettings.shared.commander ? "Commander" : ""
+            self.game!.value2 = ""
+            self.game!.show1 = false
+            self.game!.show2 = false
+            
         }
+        ValueCoordinator.setup()
         save()
     }
     
     func fetchValues() {
         let request = NSFetchRequest<Value>(entityName: "Value")
         do {
-            self.values = try self.manager.context.fetch(request)  // sets ALL values
+            self.values = try self.manager.context.fetch(request)
             if let gameValues = self.game?.values?.allObjects as? [Value] {
-                self.values = gameValues  // then immediately overwrites with game values
+                self.values = gameValues
             }
         } catch {}
     }
@@ -74,13 +80,6 @@ class ValueViewModel: ObservableObject {
     
     func addValue(_ player: Player, _ name: String, _ count: Int, _ iconName: String, _ rgb: (Double, Double, Double)) {
         
-        if let playerValues = player.values?.allObjects as? [Value] {
-            for value in playerValues {
-                if value.name == name && value.iconName == iconName{
-                    return
-                }
-            }
-        }
         let value = Value(context: manager.context)
         value.player = player
         value.game = game
@@ -101,20 +100,19 @@ class ValueViewModel: ObservableObject {
     }
     
     func increaseValue(_ value: Value) {
+        if value.count >= 99 { return }
         value.count+=1
         save()
     }
     func decreaseValue(_ value: Value) {
+        if value.count <= 0 { return }
         value.count-=1
         save()
     }
     
     func deleteValue(_ value: Value) {
-        
-        withAnimation {
-            manager.context.delete(value)
-            save()
-        }
+        manager.context.delete(value)
+        save()
     }
     
     func deleteValueFromGame(_ valueName: String) {
@@ -126,20 +124,61 @@ class ValueViewModel: ObservableObject {
         save()
     }
     
+    
     func selectValue(name: String, count: Int, iconName: String, rgb: (Double, Double, Double), custom: Bool) {
-        let allowedValues = 1
-        withAnimation {
-            if values.contains(where: {$0.name == name}) && !custom {
-                deleteValueFromGame(name)
-            } else {
-                if(values.count >= allowedValues) {
-                    deleteValueFromGame(values.first!.name!)
+        let valueIsInGame = game!.value1 == name || game!.value2 == name
+        let valueName = custom && valueIsInGame ? "\(name) (1)" : name
+
+        if !animating {
+            if !valueIsInGame || custom {
+                if game!.value1 == "" && !game!.commander {
+                    game!.value1 = valueName
+                    withAnimation(.easeIn(duration: 0.4)) {
+                        ValueCoordinator.shared.show1 = true
+                    }
+                } else if game!.value2 == "" {
+                    game!.value2 = valueName
+                    withAnimation(.easeIn(duration: 0.4)) {
+                        ValueCoordinator.shared.show2 = true
+                    }
+                } else {
+                    self.deleteValueFromGame(self.game!.value2!)
+                    self.game!.value2 = valueName
+                    
+                    
                 }
-                DispatchQueue.main.async {
-                    self.addValueToPlayers(name, count, iconName, rgb)
+                print("adding value to game")
+                addValueToPlayers(valueName, count, iconName, rgb)
+                
+                
+            } else {
+                var slotToBeRemoved = 0
+                animating = true
+                withAnimation(.easeIn(duration: 0.4)) {
+                    if game!.value1 == valueName {
+                        slotToBeRemoved = 1
+                        ValueCoordinator.shared.show1 = false
+                    } else {
+                        slotToBeRemoved = 2
+                        ValueCoordinator.shared.show2 = false
+                    }
+                    print("starting animation")
+                } completion: {
+                    if slotToBeRemoved == 1 {
+                        print("starting delete")
+                        self.deleteValueFromGame(valueName)
+                        self.game!.value1 = ""
+                    } else if slotToBeRemoved == 2{
+                        print("starting delete")
+                        self.deleteValueFromGame(valueName)
+                        self.game!.value2 = ""
+                    }
+                    self.animating = false
                 }
             }
         }
+        print("\(game!.value1!), \(game!.value2!)")
+
     }
     
     func changeIconName(_ value: Value, _ iconName: String) {
@@ -157,10 +196,7 @@ class ValueViewModel: ObservableObject {
     func save() {
         manager.save()
         DispatchQueue.main.async {
-            withAnimation {
-                self.fetchValues()
-
-            }
+            self.fetchValues()
         }
     }
     
@@ -171,29 +207,25 @@ struct PlayerView: View {
     @ObservedObject var player: Player
     @State var show = false
     @ObservedObject var valueVM = ValueViewModel.shared
-        
+    @ObservedObject var playerVM = PlayerViewModel.shared
+    @StateObject var coordinator = ValueCoordinator.shared
+    @State var showSlot1 = false
     var playerValues: [Value] {
-        valueVM.values.filter { $0.player?.objectID == player.objectID }
+        ValueViewModel.shared.fetchPlayerValues(player)
     }
+    
        
     var body: some View {
         ZStack {
             UnevenRoundedRectangle(10, 0, 0, 10)
                 .fill(.white)
-            HStack(spacing: 0) {
-                if let value = playerValues.first {
-                    
-                    ValueView(player: player, value: value)
-                        .frame(maxWidth: 100)
-                        .transition(.move(edge: .leading))
-                        
-                }
+            GeometryReader { geo in
                 ZStack {
                     VStack(spacing: 0) {
                         Button(action: {
                             PlayerViewModel.shared.addLife(player)
                         }) {
-                            UnevenRoundedRectangle(ValueViewModel.shared.fetchPlayerValues(player).isEmpty ? 10 : 0,0,0,10)
+                            UnevenRoundedRectangle(10,0,0,10)
                                 .fill(Color(player.color ?? "Player1"))
                         }
                         Button(action: {
@@ -211,6 +243,46 @@ struct PlayerView: View {
                     }
                     .allowsHitTesting(false)
                     .foregroundStyle(.white)
+                    
+                    let x = geo.size.width
+                    let y = geo.size.height
+                    let commanderY = max(x*frameMult*0.5, min(y, counterHeightLimit*(CGFloat(playerVM.players.count-1))+titleHeight))
+                    
+                    if coordinator.show1 && !valueVM.game!.commander {
+                        CounterView(size: geo.size, player: player, slot: 1)
+                            .transition(
+                                ZoomTransition(size: geo.size, x: 0, y: y)
+                            )
+                            .contentShape(
+                                UnevenRoundedRectangle(0,0,0,x/15)
+                                    .size(width: x*frameMult*0.5, height: x*frameMult*0.5)
+                                    .offset(x: x*frameMult*0.5)
+                            )
+                            .position(x: 0, y: y)
+                            
+                            .zIndex(100)
+                            
+                            
+                    } else if valueVM.game!.commander {
+                        CommanderCounterStack(size: geo.size, player: player)
+                            .position(x: x*frameMult*0.25, y: y-commanderY*0.5)
+                            .zIndex(100)
+                            
+                    }
+                    if coordinator.show2 {
+                        
+                        CounterView(size: geo.size, player: player, slot: 2)
+                            .transition(
+                                ZoomTransition(size: geo.size, x: x, y: y)
+                            )
+                            .contentShape(
+                                UnevenRoundedRectangle(x/15,0,0,0)
+                                    .size(width: x*frameMult*0.5, height: x*frameMult*0.5)
+                            )
+                            .position(x: x, y: y)
+                            .zIndex(100)
+                            
+                    }
                 }
             }
         }
@@ -219,5 +291,5 @@ struct PlayerView: View {
 }
 
 #Preview {
-    GameView()
+    TwoPlayerGame()
 }

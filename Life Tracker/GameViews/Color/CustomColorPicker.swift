@@ -58,6 +58,7 @@ let UIColors: [UIColor] = [
     #colorLiteral(red: 0.721568644, green: 0.8862745166, blue: 0.5921568871, alpha: 1)
 ]
 let colors: [Color] = UIColors.map { Color($0)}
+
 let textColors: [String: UIColor] = [
     "white": #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1),
     "lightGray": #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1),
@@ -73,6 +74,8 @@ let patchSize: CGFloat = 30
 
 struct CustomColorPicker: View {
     @Binding var selectedColor: Color
+   
+    
     let layout = [
         GridItem(.fixed(patchSize), spacing: spacing),
         GridItem(.fixed(patchSize), spacing: spacing),

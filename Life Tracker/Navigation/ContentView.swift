@@ -12,6 +12,7 @@ class InitialGameSettings: ObservableObject {
     @Published var startingLife: Int = 0
     @Published var playerCount: Int = 0
     @Published var newGame = true
+    @Published var commander = false
 }
 
 class Path: ObservableObject {
@@ -33,7 +34,7 @@ struct ContentView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
                 VStack {
-                    Text("Game")
+                    Text("Life Tracker")
                         .heading()
                         .foregroundStyle(.white)
                         .padding()
@@ -79,7 +80,12 @@ struct ContentView: View {
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .game:
-                    GameView()
+                    let playerCount = GameViewModel.shared.currentGame!.playerCount
+                    if playerCount == 2 {
+                        TwoPlayerGame()
+                    } else if playerCount == 4 {
+                        FourPlayerGame()
+                    }
                 case .playerSelection:
                     PlayerCountSelection()
                 case .lifeSelection:

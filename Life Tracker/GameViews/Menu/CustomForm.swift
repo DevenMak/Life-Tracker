@@ -163,7 +163,7 @@ struct NameField: View {
     @Binding var nameText: String
     @Binding var selection: TextSelection?
     @FocusState var isFocused: Bool
-    let characterLimit = 10
+    let characterLimit = 8
     var body: some View {
         
         
