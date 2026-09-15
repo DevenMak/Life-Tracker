@@ -7,43 +7,22 @@
 
 import SwiftUI
 
-class TestCoordinator: ObservableObject {
-    public static var shared = TestCoordinator()
-    @Published var toggleRectangle: Bool = false
-}
-
 struct SwiftUIView: View {
-    @StateObject var coordinator: TestCoordinator = .shared
-    @State var showText: Bool = true
+    @State var isOn = false
     var body: some View {
         ZStack {
-            Color.green
-               // .zIndex(-100)
-            Button(action: {
-                withAnimation {
-                    coordinator.toggleRectangle.toggle()
+            //Color.black
+            HStack {
+                Toggle(isOn: $isOn) {
+                    Text("Auto Save")
+                        .regular()
+                        .foregroundStyle(.accent)
                 }
-            }) {
-                Text("Toggle text")
+                
+                .tint(.accent)
             }
-            .offset(y: -200)
-            if coordinator.toggleRectangle {
-                Rectangle()
-                    .fill(.red)
-                    .frame(width: 200, height: 200)
-                    .position(x: 300, y: 300)
-                    .transition(
-                        ZoomTransition(
-                            size: CGSize(width: 200, height: 200),
-                            x: 300,
-                            y: 300
-                        )
-                    )
-                   // .zIndex(100)
-            }
+            .frame(maxWidth: 150)
         }
-        .ignoresSafeArea(.all)
-
     }
 }
 
