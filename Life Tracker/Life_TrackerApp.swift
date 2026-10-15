@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct Life_TrackerApp: App {
@@ -13,5 +14,8 @@ struct Life_TrackerApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: Player.self)
+        .modelContainer(for: Tally.self)
+        .modelContainer(for: Game.self)
     }
 }
