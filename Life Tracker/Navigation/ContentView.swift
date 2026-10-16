@@ -13,8 +13,9 @@ class Path: ObservableObject {
     @Published var navPath = NavigationPath()
 }
 enum Route: Hashable {
-    case menu
     case twoPlayerView
+    case playerCountSelection
+    case savedGames
 }
 
 struct ContentView: View {
@@ -26,30 +27,32 @@ struct ContentView: View {
         NavigationStack(path: $path.navPath) {
             VStack {
                 Button(action: {
-                    startNewGame()
-                    path.navPath.append(Route.menu)
+                    GameSettings.shared.startingLife = 20
+                    path.navPath.append(Route.playerCountSelection)
                 }) {
-                    Text("Go to Menu")
+                    Text("Go to player selection")
                 }
                 Button(action: {
-                    startNewGame()
-                    path.navPath.append(Route.twoPlayerView)
+                    path.navPath.append(Route.savedGames)
                 }) {
-                    Text("Go to 2 Player")
+                    Text("Go to saved games")
                 }
             }
             .navigationDestination(for: Route.self) { route in
                 switch route {
-                case .menu:
-                    Menu(game: games[0])
                 case .twoPlayerView:
-                    TwoPlayerView(game: games[0])
+                    TwoPlayerView(game: GameSettings.shared.game!)
+                case .playerCountSelection:
+                    PlayerCountSelection()
+                case .savedGames:
+                    SavedGames()
                 
                 }
             }
            
         }
-        
+        .statusBarHidden(true)
+
     }
     
     func deleteGame(game: Game) {
@@ -57,14 +60,7 @@ struct ContentView: View {
         try? context.save()
     }
     
-    func startNewGame() {
-        let game = Game(playerCount: 2, startingLife: 20)
-        for g in games {
-            deleteGame(game: g)
-        }
-        context.insert(game)
-        try? context.save()
-    }
+    
 }
 
 #Preview {

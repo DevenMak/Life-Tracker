@@ -15,24 +15,29 @@ struct TwoPlayerView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                Color.black.ignoresSafeArea()
-                VStack(spacing: 7) {
-                    VerticalPlayer(player: game.players[0])
-                        .rotationEffect(.degrees(180))
-                    VerticalPlayer(player: game.players[1])
+                ZStack {
+                    Color.black.ignoresSafeArea()
+                    VStack(spacing: 7) {
+                        VerticalPlayer(player: game.players[0])
+                            .rotationEffect(.degrees(180))
+                        VerticalPlayer(player: game.players[1])
+                    }
+                    .ignoresSafeArea()
+                    
+                    MenuButton()
+                        .offset(y: -0.5*(geo.safeAreaInsets.top-geo.safeAreaInsets.bottom))
                 }
-                .ignoresSafeArea()
+                .compositingGroup()
+                .blur(radius: menuState.showMenu ? 5 : 0)
                 
-                MenuButton()
-                    .offset(y: -0.5*(geo.safeAreaInsets.top-geo.safeAreaInsets.bottom))
-                
+
                 if menuState.showMenu {
                     Menu(game: game)
+                        .zIndex(1)
                 }
                 
             }
         }
-        .animation(.default, value: menuState.showMenu)
         .navigationBarBackButtonHidden(true)
         
     }

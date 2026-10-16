@@ -21,4 +21,12 @@ class Tally {
         self.name = name
         self.order = order
     }
+    
+    init(game: Game, player: Player, name: String, order: Int = 0, value: Int = 0) {
+        self.game = game
+        self.player = player
+        self.value = value
+        self.name = name
+        self.order = order
+    }
 }

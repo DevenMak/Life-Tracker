@@ -8,26 +8,9 @@
 import SwiftUI
 import SwiftData
 
-class MenuState: ObservableObject {
-    public static var shared = MenuState()
-    @Published var showMenu: Bool = false
-    
-    func setShowMenu(_ showMenu: Bool) {
-        withAnimation(.linear(duration: 5)) {
-            self.showMenu = showMenu
-        }
-    }
-}
-
-struct Picker: View {
-    var body: some View {
-        Image(systemName: "arrow.down")
-            .iconSize(60)
-            .foregroundStyle(.white)
-    }
-}
 
 struct Menu: View {
+    @Environment(\.modelContext) private var context
     var game: Game
     @State var showPicker: Bool = false
     @State var rotationAmount: CGFloat = 0
@@ -39,7 +22,7 @@ struct Menu: View {
         ]
                 
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color.black.opacity(0.85).ignoresSafeArea()
             VStack {
                 Text("Menu")
                     .heading()
@@ -62,26 +45,26 @@ struct Menu: View {
                 }) {
                     HStack {
                         Text("Picker")
-                            .avenir(30)
+                            .avenir(25)
                             
                         Image("arrow.down.to.line.compact")
                             .iconSize(30)
                     }
-                    .padding(.horizontal, 30)
-                    .frame(maxHeight: 65)
+                    .padding(.horizontal, 25)
+                    .frame(maxHeight: 60)
                     .background(.white.opacity(0.3))
                     .clipShape(Capsule())
                 }
                 .overlay(
                     HStack {
                         Text("Picker")
-                            .avenir(30)
+                            .avenir(25)
                             
                         Image("arrow.down.to.line.compact")
                             .iconSize(30)
                     }
-                    .padding(.horizontal, 30)
-                    .frame(maxHeight: 65)
+                    .padding(.horizontal, 25)
+                    .frame(maxHeight: 60)
                     .background(
                         Capsule()
                             .fill(.clear)
@@ -100,17 +83,17 @@ struct Menu: View {
                         menuState.setShowMenu(false)
                     }) {
                         Text("Main Menu")
-                            .avenir(30)
-                            .padding(.horizontal, 30)
-                            .frame(maxHeight: 65)
+                            .avenir(25)
+                            .padding(.horizontal, 25)
+                            .frame(maxHeight: 60)
                             .background(.white.opacity(0.3))
                             .clipShape(Capsule())
                     }
                     .overlay(
                         Text("Main Menu")
-                            .avenir(30)
-                            .padding(.horizontal, 30)
-                            .frame(maxHeight: 65)
+                            .avenir(25)
+                            .padding(.horizontal, 25)
+                            .frame(maxHeight: 60)
                             .background(
                                 Capsule()
                                     .fill(.clear)
@@ -121,22 +104,20 @@ struct Menu: View {
                     .padding()
                     //Close
                     Button(action: {
-                        withAnimation {
-                            menuState.showMenu = false
-                        }
+                        menuState.setShowMenu(false)
                     }) {
                         Text("Close")
-                            .avenir(30)
-                            .padding(.horizontal, 30)
-                            .frame(maxHeight: 65)
+                            .avenir(25)
+                            .padding(.horizontal, 25)
+                            .frame(maxHeight: 60)
                             .background(.white.opacity(0.3))
                             .clipShape(Capsule())
                     }
                     .overlay(
                         Text("Close")
-                            .avenir(30)
-                            .padding(.horizontal, 30)
-                            .frame(maxHeight: 65)
+                            .avenir(25)
+                            .padding(.horizontal, 25)
+                            .frame(maxHeight: 60)
                             .background(
                                 Capsule()
                                     .fill(.clear)
@@ -149,11 +130,9 @@ struct Menu: View {
                 .foregroundStyle(.secondary)
             }
             .foregroundStyle(.white)
-            .blur(radius: showPicker ? 5 : 0)
-
             
             
-            Color.black.opacity(showPicker ? 1 : 0)
+            Color.black.opacity(showPicker ? 1 : 0).ignoresSafeArea()
 
             Picker()
                 .opacity(showPicker ? 1 : 0)
@@ -175,12 +154,9 @@ struct Menu: View {
             rotationAmount = rotationAngle
         } completion: {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                withAnimation {
-                    showPicker = false
-                } completion: {
-                    rotationAmount = 0
-                    menuState.setShowMenu(false)
-                }
+                showPicker = false
+                rotationAmount = 0
+                menuState.setShowMenu(false)
             }
         }
     }
@@ -189,41 +165,26 @@ struct Menu: View {
 
 struct DefaultTallyButton: View {
     @Environment(\.modelContext) private var context
-    
     var game: Game
     var name: String
-    
-    @Query private var allTallies: [Tally]
-    
-    var tallies: [Tally] {
-        allTallies.filter { t in
-            t.name == name
-        }
+    var gameTallies: [Tally] {
+        var array: [Tally] = []
+        game.players.forEach { $0.tallies.forEach { array.append($0) }}
+        return array
     }
-    
+    var tallies: [Tally] { gameTallies.filter { $0.name == name } }
     var bindingTallySelected: Binding<Bool> {
         Binding(
-            get: {
-                if tallies.isEmpty { return false }
-                return tallies[0].order != 0
-            }, set: { newValue in}
+            get: { tallies[0].order != 0},
+            set: { newValue in}
         )
-
     }
-    
-    var tallySelected: Bool {
-        if tallies.isEmpty { return false }
-        return tallies[0].order != 0
-    }
+    var tallySelected: Bool { tallies[0].order != 0 }
     
     var body: some View {
         Button(action: {
-            for tally in tallies {
-                if tally.order == 0 {
-                    tally.order = 1
-                } else {
-                    tally.order = 0
-                }
+            withAnimation {
+                selectTally()
             }
         }) {
             ZStack {
@@ -238,7 +199,58 @@ struct DefaultTallyButton: View {
         .padding()
         .buttonStyle(MenuButtonStyle(isSelected: bindingTallySelected))
     }
+    
+    func selectTally() {
+        let firstSlotOpen = !gameTallies.contains(where: { $0.order == 1})
+        let secondSlotOpen = !gameTallies.contains(where: { $0.order == 2})
+        let tallyBeingSelected = tallies[0]
+        if tallyBeingSelected.order == 0 { // If Tally not already showing
+            if firstSlotOpen {
+                tallies.forEach { tally in tally.order = 1 } // Put tally in slot 1
+            } else if secondSlotOpen {
+                tallies.forEach { tally in tally.order = 2 }// Put tally in slot 2
+            } else {
+                if TallyTracker.shared.orderToBeRemoved == 1 {
+                    gameTallies.filter { $0.order == 1}.forEach { t in t.order = 0}
+                    TallyTracker.shared.orderToBeRemoved = 2
+                    tallies.forEach { tally in tally.order = 1 } // Put tally in slot 1
+                } else {
+                    gameTallies.filter { $0.order == 2}.forEach { t in t.order = 0}
+                    TallyTracker.shared.orderToBeRemoved = 1
+                    tallies.forEach { tally in tally.order = 2 }// Put tally in slot 2
+                }
+            }
+        } else { // tally already showing
+            tallies.forEach { tally in tally.order = 0 }// Take tally out
+        }
+        try? context.save()
+    }
 }
+
+class MenuState: ObservableObject {
+    public static var shared = MenuState()
+    @Published var showMenu: Bool = false
+    
+    func setShowMenu(_ showMenu: Bool) {
+        withAnimation {
+            self.showMenu = showMenu
+        }
+    }
+}
+
+class TallyTracker: ObservableObject {
+    public static var shared = TallyTracker()
+    @Published var orderToBeRemoved: Int = 1
+}
+
+struct Picker: View {
+    var body: some View {
+        Image(systemName: "arrow.down")
+            .iconSize(60)
+            .foregroundStyle(.white)
+    }
+}
+
 
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)

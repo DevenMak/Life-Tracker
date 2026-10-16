@@ -22,38 +22,60 @@ struct VerticalPlayer: View {
     @Environment(\.modelContext) private var context
     var viewModel = VerticalPlayerViewModel.shared
     var player: Player
-
+    @State var showTally: Bool = false
     @Query private var allTallies: [Tally]
     var tallies: [Tally] {
         allTallies
             .filter {$0.player == player}
-            .sorted {$0.order < $1.order}
     }
     
     var body: some View {
-        ZStack {
-            UnevenRoundedRectangle(cornerRad,0,0,cornerRad)
-                .fill(.white)
-            VStack(spacing: 0) {
-                //Add Life Button
-                Button(action: {
-                    viewModel.addLife(player, 1)
-                    try? context.save()
-                }) {
-                    UnevenRoundedRectangle(cornerRad,0,0,cornerRad)
-                        .fill(Color("Player2.\(player.order)"))
+        GeometryReader { geo in
+            ZStack {
+                UnevenRoundedRectangle(cornerRad,0,0,cornerRad)
+                    .fill(.white)
+                VStack(spacing: -0.5) {
+                    //Add Life Button
+                    Button(action: {
+                        viewModel.addLife(player, 1)
+                        try? context.save()
+                    }) {
+                        UnevenRoundedRectangle(cornerRad,0,0,cornerRad)
+                            .fill(Color("Player2.\(player.order)"))
+                    }
+                    Button(action: {
+                        viewModel.addLife(player, -1)
+                        try? context.save()
+                    }) {
+                        UnevenRoundedRectangle(0,0,0,0)
+                            .fill(Color("Player2.\(player.order)"))
+                    }
                 }
-                Button(action: {
-                    viewModel.addLife(player, -1)
-                    try? context.save()
-                }) {
-                    UnevenRoundedRectangle(0,0,0,0)
-                        .fill(Color("Player2.\(player.order)"))
+                let tallySize: CGFloat = geo.size.width/3.5
+                
+                
+                    
+                if let showingTally = tallies.first(where: {$0.order == 1}) {
+                    TallyView(player: player, tallySize: tallySize, tallyName: showingTally.name)
+                        .position(x: 0, y: geo.size.height)
+                        .transition(ZoomTransition(size: tallySize*2, x: 0, y: geo.size.height))
+                        .zIndex(1)
                 }
+                
+                if let showingTally = tallies.first(where: {$0.order == 2}) {
+                    TallyView(player: player, tallySize: tallySize, tallyName: showingTally.name)
+                        .position(x: geo.size.width, y: geo.size.height)
+                        .transition(ZoomTransition(size: tallySize*2, x: geo.size.width, y: geo.size.height))
+                        .zIndex(1)
+                }
+                
+                text
             }
-            
-            text
+            .compositingGroup()
+
         }
+        .compositingGroup()
+
 
 
     }
@@ -83,11 +105,15 @@ struct VerticalPlayer: View {
     
 }
 
+
+
+
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: Game.self, configurations: config)
 
     let game = Game(playerCount: 2, startingLife: 40 )
+    container.mainContext.insert(game)
     return VerticalPlayer(player: game.players[0])
         .modelContainer(container)
 }
