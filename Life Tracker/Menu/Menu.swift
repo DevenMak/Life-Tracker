@@ -139,6 +139,7 @@ struct Menu: View {
                 .rotationEffect(.degrees(rotationAmount))
 
         }
+        .allowsHitTesting(menuState.showMenu ? true : false)
     }
     
     func pick() -> CGFloat {
