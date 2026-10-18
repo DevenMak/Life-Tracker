@@ -60,21 +60,21 @@ struct SavedGames: View {
                     Section(header: Text(group.category).foregroundStyle(.accent)) {
                         ForEach(group.games) { game in
                             HStack {
-                                Text(game.date.formatted(date: .numeric, time: .omitted)
+                                Text(game.date.formatted(date: .numeric, time: .omitted))
                                  Button(action: {
                                      GameSettings.shared.game = game
                                      Path.shared.navPath.append(Route.twoPlayerView)
                                  }) {
                                      Text("Resume")
-                                         .avenir(20)
+                                         .foregroundStyle(.black)
+                                         .avenir(15)
                                          .padding(.horizontal, 10)
+                                         .frame(maxHeight: 50)
                                          .background(.accent)
                                          .cornerRadius(10)
                                          
                                  }
-)
                             }
-                            .frame(maxHeight: 50)
                             
                         }
                     }
