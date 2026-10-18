@@ -36,7 +36,7 @@ struct SavedGames: View {
         
         let groupByYearAndMonth: [String: [Game]] = Dictionary(grouping: sortedGames) {
             let components = Calendar.current.dateComponents([.year, .month], from: $0.date)
-            return "\( ( (components.year ?? 2024) == Calendar.current.component(.year, from: Date()) ) ? "" : "\(components.year ?? 2024)" ), \(monthNames[components.month ?? 0])"
+            return "\( ( (components.year ?? 2024) == Calendar.current.component(.year, from: Date()) ) ? "" : "\(components.year ?? 2024), " ) \(monthNames[(components.month ?? 1)-1])"
         }
         var mappedGroupedGames = groupByYearAndMonth
             .map { (category: $0.key.description, games: $0.value) }
@@ -54,36 +54,63 @@ struct SavedGames: View {
                 .onTapGesture {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 }
-            List {
-                
-                ForEach(groupedGames, id: \.category) { group in
-                    Section(header: Text(group.category).foregroundStyle(.accent)) {
-                        ForEach(group.games) { game in
-                            HStack {
-                                Text(game.date.formatted(date: .numeric, time: .omitted))
-                                 Button(action: {
-                                     GameSettings.shared.game = game
-                                     Path.shared.navPath.append(Route.twoPlayerView)
-                                 }) {
-                                     Text("Resume")
-                                         .foregroundStyle(.black)
-                                         .avenir(15)
-                                         .padding(.horizontal, 10)
-                                         .frame(maxHeight: 50)
-                                         .background(.accent)
-                                         .cornerRadius(10)
-                                         
-                                 }
+            VStack {
+                Text("Saved Games")
+                    .heading()
+                    .foregroundStyle(.white)
+                List {
+                    
+                    ForEach(groupedGames, id: \.category) { group in
+                        Section(header: Text(group.category).foregroundStyle(.accent)) {
+                            ForEach(group.games) { game in
+                                GameRow(game: game)
+                                
                             }
-                            
                         }
                     }
                 }
+                .scrollContentBackground(.hidden)
+                .background(Color.black.ignoresSafeArea())
+                if games.isEmpty {
+                    Text("No Saved Games")
+                        .avenir(17)
+                        .foregroundStyle(.accent)
+                }
             }
-            .scrollContentBackground(.hidden)
-            .background(Color.black.ignoresSafeArea())
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            CustomBackButton()
         }
     }
+    
+    
+}
+
+struct GameRow: View {
+    var game: Game
+    var body: some View {
+        HStack {
+            Text(game.date.formatted(date: .numeric, time: .omitted))
+                .avenir(17)
+            Spacer()
+             Button(action: {
+                 GameSettings.shared.game = game
+                 Path.shared.navPath.append(Route.twoPlayerView)
+             }) {
+                 Text("Resume")
+                     .avenirMedium(17)
+                     .foregroundStyle(.white)
+                     .padding(.horizontal, 12)
+                     .padding(.vertical, 6)
+                     .background(Color.accentColor)
+                     .cornerRadius(8)
+             }
+             .buttonStyle(.plain)
+             .padding(.leading)
+        }
+    }
+    
 }
 
 #Preview {
@@ -92,7 +119,7 @@ struct SavedGames: View {
 
     let game = Game(playerCount: 2, startingLife: 40 )
     let game2 = Game(playerCount: 2, startingLife: 40 )
-    game.date = Date(timeIntervalSinceNow: -86400*30*15)
+    game.date = Date(timeIntervalSinceNow: -86400*10)
     container.mainContext.insert(game)
     container.mainContext.insert(game2)
 
