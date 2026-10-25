@@ -58,19 +58,22 @@ struct SavedGames: View {
                 Text("Saved Games")
                     .heading()
                     .foregroundStyle(.white)
-                List {
-                    
-                    ForEach(groupedGames, id: \.category) { group in
-                        Section(header: Text(group.category).foregroundStyle(.accent)) {
-                            ForEach(group.games) { game in
-                                GameRow(game: game)
-                                
+                if !games.isEmpty {
+                    List {
+                        
+                        ForEach(groupedGames, id: \.category) { group in
+                            Section(header: Text(group.category).foregroundStyle(.accent)) {
+                                ForEach(group.games) { game in
+                                    GameRow(game: game)
+                                    
+                                }
                             }
                         }
                     }
+                    .scrollContentBackground(.hidden)
+                    .background(Color.black.ignoresSafeArea())
                 }
-                .scrollContentBackground(.hidden)
-                .background(Color.black.ignoresSafeArea())
+                
                 if games.isEmpty {
                     Text("No Saved Games")
                         .avenir(17)

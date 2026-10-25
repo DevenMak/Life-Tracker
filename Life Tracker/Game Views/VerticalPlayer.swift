@@ -24,7 +24,7 @@ struct VerticalPlayer: View {
     var player: Player
     @State var showTally: Bool = false
     @Query private var allTallies: [Tally]
-    var tallies: [Tally] {
+    var playerTallies: [Tally] {
         allTallies
             .filter {$0.player == player}
     }
@@ -51,18 +51,19 @@ struct VerticalPlayer: View {
                             .fill(Color("Player2.\(player.order)"))
                     }
                 }
+                
                 let tallySize: CGFloat = geo.size.width/3.5
                 
                 
                     
-                if let showingTally = tallies.first(where: {$0.order == 1}) {
+                if let showingTally = playerTallies.first(where: {$0.order == 1}) {
                     TallyView(player: player, tallySize: tallySize, tallyName: showingTally.name)
                         .position(x: 0, y: geo.size.height)
                         .transition(ZoomTransition(size: tallySize*2, x: 0, y: geo.size.height))
                         .zIndex(1)
                 }
                 
-                if let showingTally = tallies.first(where: {$0.order == 2}) {
+                if let showingTally = playerTallies.first(where: {$0.order == 2}) {
                     TallyView(player: player, tallySize: tallySize, tallyName: showingTally.name)
                         .position(x: geo.size.width, y: geo.size.height)
                         .transition(ZoomTransition(size: tallySize*2, x: geo.size.width, y: geo.size.height))
@@ -71,10 +72,8 @@ struct VerticalPlayer: View {
                 
                 text
             }
-            .compositingGroup()
 
         }
-        .compositingGroup()
 
 
 

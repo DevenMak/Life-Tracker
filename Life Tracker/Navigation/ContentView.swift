@@ -15,6 +15,7 @@ class Path: ObservableObject {
 enum Route: Hashable {
     case twoPlayerView
     case playerCountSelection
+    case lifeSelection
     case savedGames
 }
 
@@ -25,17 +26,27 @@ struct ContentView: View {
     @Query private var tallies: [Tally]
     var body: some View {
         NavigationStack(path: $path.navPath) {
-            VStack {
-                Button(action: {
-                    GameSettings.shared.startingLife = 20
-                    path.navPath.append(Route.playerCountSelection)
-                }) {
-                    Text("Go to player selection")
+            ZStack {
+                Color.black.ignoresSafeArea()
+                VStack {
+                    Text("Life Tracker")
+                        .heading()
+                        .foregroundStyle(.white)
+                        .padding()
+                    Spacer()
                 }
-                Button(action: {
-                    path.navPath.append(Route.savedGames)
-                }) {
-                    Text("Go to saved games")
+                VStack(spacing: 100) {
+                    Button(action: {
+                        GameSettings.shared.startingLife = 20
+                        path.navPath.append(Route.lifeSelection)
+                    }) {
+                        Text("Go to life selection")
+                    }
+                    Button(action: {
+                        path.navPath.append(Route.savedGames)
+                    }) {
+                        Text("Go to saved games")
+                    }
                 }
             }
             .navigationDestination(for: Route.self) { route in
@@ -46,6 +57,8 @@ struct ContentView: View {
                     PlayerCountSelection()
                 case .savedGames:
                     SavedGames()
+                case .lifeSelection:
+                    LifeSelection()
                 
                 }
             }

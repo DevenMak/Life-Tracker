@@ -10,6 +10,7 @@ import SwiftData
 
 @Model
 class Player {
+    var comDamages: [Int] = [0,0,0,0,0]
     var order: Int
     var life: Int
     @Relationship(deleteRule: .cascade, inverse: \Tally.player)
