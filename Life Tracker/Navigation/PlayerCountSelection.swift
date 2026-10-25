@@ -12,7 +12,13 @@ class GameSettings: ObservableObject {
     public static var shared = GameSettings()
     @Published var playerCount: Int = 0
     @Published var startingLife: Int = 0
-    @Published var game: Game?
+    @Published var commander: Bool = false
+    @Published var game: Game? {
+        didSet {
+            game!.players = game!.players.sorted { $0.order < $1.order}
+        }
+        
+    }
 }
 
 struct PlayerCountSelection: View {
@@ -39,7 +45,7 @@ struct PlayerCountSelection: View {
                 Button(action: {
                     gameSettings.playerCount = 4
                     startNewGame()
-                    Path.shared.navPath.append(Route.twoPlayerView)
+                    Path.shared.navPath.append(Route.fourPlayerView)
                 }) {
                     PlayerButton(numPlayers: 4)
                 }
@@ -56,10 +62,7 @@ struct PlayerCountSelection: View {
     }
     
     func startNewGame() {
-        let game = Game(playerCount: gameSettings.playerCount, startingLife: gameSettings.startingLife)
-//        for g in games {
-//            context.delete(g)
-//        }
+        let game = Game(playerCount: gameSettings.playerCount, startingLife: gameSettings.startingLife, commander: gameSettings.commander)
         context.insert(game)
         gameSettings.game = game
         try? context.save()

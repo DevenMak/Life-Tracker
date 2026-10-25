@@ -10,7 +10,7 @@ import SwiftData
 
 struct HorizontalPlayer: View {
     var player: Player
-    var cornerRadii: [CGFloat]
+    var cornerRadii: [CGFloat] = [0,0,0,0]
     var playerTallies: [Tally] {
         player.tallies
     }
@@ -36,13 +36,21 @@ struct HorizontalPlayer: View {
                     HorizontalPlayerText(player: player)
                 )
                 
-                let tallySize: CGFloat = geo.size.width/3.5
+                let tallySize: CGFloat = geo.size.height/3.5
                 if let showingTally = playerTallies.first(where: {$0.order == 1}) {
-                    TallyView(player: player, tallySize: tallySize, tallyName: showingTally.name)
-                        .rotationEffect(.degrees(90))
-                        .position(x: 0, y: 0)
-                        .transition(ZoomTransition(size: tallySize*2, x: 0, y: 0))
-                        .zIndex(1)
+                    if showingTally.name == "commander" {
+                        CommanderTally(player: player, tallySize: tallySize)
+                            .rotationEffect(.degrees(90))
+                            .position(x: 0, y: 0)
+                            .transition(ZoomTransition(size: tallySize*2, x: 0, y: 0))
+                            .zIndex(1)
+                    } else {
+                        TallyView(player: player, tallySize: tallySize, tallyName: showingTally.name)
+                            .rotationEffect(.degrees(90))
+                            .position(x: 0, y: 0)
+                            .transition(ZoomTransition(size: tallySize*2, x: 0, y: 0))
+                            .zIndex(1)
+                    }
                 }
                 
                 if let showingTally = playerTallies.first(where: {$0.order == 2}) {
@@ -83,6 +91,7 @@ struct HorizontalPlayerText: View {
                 .rotationEffect(.degrees(90))
                 .frame(width: size.height, height: size.width)
         }
+        .foregroundStyle(.white)
     }
     
     var scoreLabel: some View {

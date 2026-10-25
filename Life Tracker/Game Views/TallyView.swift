@@ -80,21 +80,21 @@ struct TallyText: View {
     var tallySize: CGFloat
     var body: some View {
         VStack(spacing: 0) {
-            Image(systemName: "plus")
-                .font(.system(size: 15, weight: .bold))
-                .padding(.top, 10)
+//            Image(systemName: "plus")
+//                .font(.system(size: 15, weight: .bold))
+//                .padding(.top, 10)
 
             Spacer()
             HStack {
                 Text("\(tally.value)")
-                    .rubikMedium(20)
+                    .rubikMedium(25)
                 Image("\(tally.name)Icon")
-                    .iconSize(15)
+                    .iconSize(20)
             }
             Spacer()
-            Image(systemName: "minus")
-                .font(.system(size: 15, weight: .bold))
-                .padding(.bottom, 10)
+//            Image(systemName: "minus")
+//                .font(.system(size: 15, weight: .bold))
+//                .padding(.bottom, 10)
         }
         .frame(maxWidth: tallySize, maxHeight: tallySize)
         .foregroundStyle(contrastTextColor(Color("\(tally.name)Color")))

@@ -57,10 +57,17 @@ struct VerticalPlayer: View {
                 
                     
                 if let showingTally = playerTallies.first(where: {$0.order == 1}) {
-                    TallyView(player: player, tallySize: tallySize, tallyName: showingTally.name)
-                        .position(x: 0, y: geo.size.height)
-                        .transition(ZoomTransition(size: tallySize*2, x: 0, y: geo.size.height))
-                        .zIndex(1)
+                    if showingTally.name == "commander" {
+                        CommanderTally(player: player, tallySize: tallySize)
+                            .position(x: 0, y: geo.size.height)
+                            .transition(ZoomTransition(size: tallySize*2, x: 0, y: geo.size.height))
+                            .zIndex(1)
+                    } else {
+                        TallyView(player: player, tallySize: tallySize, tallyName: showingTally.name)
+                            .position(x: 0, y: geo.size.height)
+                            .transition(ZoomTransition(size: tallySize*2, x: 0, y: geo.size.height))
+                            .zIndex(1)
+                    }
                 }
                 
                 if let showingTally = playerTallies.first(where: {$0.order == 2}) {
@@ -111,7 +118,7 @@ struct VerticalPlayer: View {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: Game.self, configurations: config)
 
-    let game = Game(playerCount: 2, startingLife: 40 )
+    let game = Game(playerCount: 2, startingLife: 40)
     container.mainContext.insert(game)
     return VerticalPlayer(player: game.players[0])
         .modelContainer(container)

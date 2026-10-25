@@ -14,6 +14,7 @@ class Path: ObservableObject {
 }
 enum Route: Hashable {
     case twoPlayerView
+    case fourPlayerView
     case playerCountSelection
     case lifeSelection
     case savedGames
@@ -51,6 +52,8 @@ struct ContentView: View {
             }
             .navigationDestination(for: Route.self) { route in
                 switch route {
+                case .fourPlayerView:
+                    FourPlayerView(game: GameSettings.shared.game!)
                 case .twoPlayerView:
                     TwoPlayerView(game: GameSettings.shared.game!)
                 case .playerCountSelection:

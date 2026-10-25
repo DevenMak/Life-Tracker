@@ -145,7 +145,7 @@ struct Menu: View {
     func pick() -> CGFloat {
         let playerCount = game.players.count
         let rotationAngle: CGFloat = CGFloat(Int.random(in: 2...3) * 360)
-        let extraRotation = CGFloat(Int.random(in: 0...playerCount) * 360 / playerCount )
+        let extraRotation = CGFloat(Int.random(in: 0...playerCount) * 360 / playerCount ) + (playerCount == 4 ? 45 : 0)
         return rotationAngle+extraRotation
     }
     
@@ -202,7 +202,7 @@ struct DefaultTallyButton: View {
     }
     
     func selectTally() {
-        let firstSlotOpen = !gameTallies.contains(where: { $0.order == 1})
+        let firstSlotOpen = !gameTallies.contains(where: { $0.order == 1}) && !game.commander
         let secondSlotOpen = !gameTallies.contains(where: { $0.order == 2})
         let tallyBeingSelected = tallies[0]
         if tallyBeingSelected.order == 0 { // If Tally not already showing
@@ -211,7 +211,7 @@ struct DefaultTallyButton: View {
             } else if secondSlotOpen {
                 tallies.forEach { tally in tally.order = 2 }// Put tally in slot 2
             } else {
-                if TallyTracker.shared.orderToBeRemoved == 1 {
+                if TallyTracker.shared.orderToBeRemoved == 1 && !game.commander {
                     gameTallies.filter { $0.order == 1}.forEach { t in t.order = 0}
                     TallyTracker.shared.orderToBeRemoved = 2
                     tallies.forEach { tally in tally.order = 1 } // Put tally in slot 1

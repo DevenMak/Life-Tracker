@@ -99,7 +99,7 @@ struct GameRow: View {
             Spacer()
              Button(action: {
                  GameSettings.shared.game = game
-                 Path.shared.navPath.append(Route.twoPlayerView)
+                 Path.shared.navPath.append(game.players.count == 2 ? Route.twoPlayerView : Route.fourPlayerView)
              }) {
                  Text("Resume")
                      .avenirMedium(17)

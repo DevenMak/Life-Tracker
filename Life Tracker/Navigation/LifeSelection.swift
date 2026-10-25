@@ -21,30 +21,43 @@ struct LifeSelection: View {
             VStack(spacing: 100) {
                 Button(action: {
                     GameSettings.shared.startingLife = 20
+                    GameSettings.shared.commander = false
                     Path.shared.navPath.append(Route.playerCountSelection)
                 }) {
-                    ZStack {
-                        Image(systemName: "heart.fill")
-                            .font(.system(size: 43))
-                            .foregroundStyle(.accent)
-                        Text("20")
-                            .rubikMedium(80)
+                    VStack {
+                        ZStack {
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 43))
+                                .foregroundStyle(.accent)
+                            Text("20")
+                                .rubikMedium(80)
+                                .foregroundStyle(.white)
+                                .opacity(0.65)
+                        }
+                        Text("Standard")
+                            .avenir(30)
                             .foregroundStyle(.white)
-                            .opacity(0.65)
                     }
                 }
                 Button(action: {
                     GameSettings.shared.startingLife = 40
+                    GameSettings.shared.commander = true
                     Path.shared.navPath.append(Route.playerCountSelection)
                 }) {
-                    ZStack {
-                        Image(systemName: "heart.fill")
-                            .font(.system(size: 43))
-                            .foregroundStyle(.accent)
-                        Text("40")
-                            .rubikMedium(80)
+                    VStack {
+                        ZStack {
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 43))
+                                .foregroundStyle(.accent)
+                            Text("40")
+                                .rubikMedium(80)
+                                .foregroundStyle(.white)
+                                .opacity(0.65)
+                        }
+                        Text("Commander")
+                            .avenir(30)
                             .foregroundStyle(.white)
-                            .opacity(0.65)
+
                     }
                 }
             }
