@@ -25,7 +25,7 @@ let monthNames = [
 
 struct SavedGames: View {
     @Query(sort: \Game.date) private var games: [Game]
-    
+    @Environment(\.modelContext) private var context
     
     var groupedGames: [(category: String, games: [Game])] {
         var sortedGames = games.sorted { $0.date > $1.date }
@@ -67,8 +67,15 @@ struct SavedGames: View {
                                     GameRow(game: game)
                                     
                                 }
+                                .onDelete { indexSet in
+                                    for index in indexSet {
+                                        context.delete(group.games[index])
+                                        try? context.save()
+                                    }
+                                }
                             }
                         }
+                        
                     }
                     .scrollContentBackground(.hidden)
                     .background(Color.black.ignoresSafeArea())

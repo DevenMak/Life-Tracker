@@ -41,12 +41,33 @@ struct ContentView: View {
                         GameSettings.shared.startingLife = 20
                         path.navPath.append(Route.lifeSelection)
                     }) {
-                        Text("Go to life selection")
+                        Text("Start New Game")
+                            .avenir(25)
+                            .foregroundStyle(Color.accent)
+                            .padding()
+                            .background(.black)
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(.accent, lineWidth: 2)
+                                
+                            )
+                            
                     }
                     Button(action: {
                         path.navPath.append(Route.savedGames)
                     }) {
-                        Text("Go to saved games")
+                        Text("Continue Game")
+                            .avenir(25)
+                            .foregroundStyle(Color.accent)
+                            .padding()
+                            .background(.black)
+                            .cornerRadius(10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(.accent, lineWidth: 2)
+                                
+                            )
                     }
                 }
             }

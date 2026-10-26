@@ -8,17 +8,13 @@
 import SwiftUI
 
 struct LifeSelection: View {
+    @State var showKeypad = false
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            VStack {
-                Text("Life Selection")
-                    .heading()
-                    .foregroundStyle(.white)
-                    .padding()
-                Spacer()
-            }
-            VStack(spacing: 100) {
+            
+            VStack(spacing: 80) {
+                //20 Button
                 Button(action: {
                     GameSettings.shared.startingLife = 20
                     GameSettings.shared.commander = false
@@ -39,6 +35,7 @@ struct LifeSelection: View {
                             .foregroundStyle(.white)
                     }
                 }
+                //40 Button
                 Button(action: {
                     GameSettings.shared.startingLife = 40
                     GameSettings.shared.commander = true
@@ -60,8 +57,60 @@ struct LifeSelection: View {
 
                     }
                 }
+                //Custom Button
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.35)) { showKeypad.toggle() }
+                }) {
+                    VStack {
+                        ZStack {
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 28))
+                                .foregroundStyle(.accent)
+                            Text("???")
+                                .rubikMedium(60)
+                                .foregroundStyle(.white)
+                                .opacity(0.65)
+                        }
+                        Text("Custom")
+                            .avenir(30)
+                            .foregroundStyle(.white)
+
+                    }
+                }
             }
+            .ignoresSafeArea(edges: .bottom)
+            if showKeypad {
+                Color.black.ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.35)) { showKeypad = false }
+                    }
+                    .zIndex(1)
+                Keypad(showKeypad: $showKeypad)
+                    .transition(KeypadTransition())
+                    .zIndex(1)
+            }
+            
+            VStack {
+                Text("Life Selection")
+                    .heading()
+                    .foregroundStyle(.white)
+                    .padding()
+
+                Spacer()
+            }
+            .zIndex(1)
         }
+    }
+}
+
+struct KeypadTransition: Transition {
+
+    func body(content: Content, phase: TransitionPhase) -> some View {
+        content
+            .mask {
+                content
+                    .scaleEffect(phase.isIdentity ? 1 : 0)
+            }
     }
 }
 
