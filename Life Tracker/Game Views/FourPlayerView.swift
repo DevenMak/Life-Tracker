@@ -19,17 +19,18 @@ struct FourPlayerView: View {
                     Color.black.ignoresSafeArea()
                     HStack(spacing: 7) {
                         VStack(spacing: 7) {
-                            HorizontalPlayer(player: game.players[0])
-                                .clipShape(Rectangle())
-                            HorizontalPlayer(player: game.players[1])
-                                .clipShape(Rectangle())
+                            HorizontalPlayer(player: game.players.first(where: {$0.order == 1})!)
+                                .clipShape(UnevenRoundedRectangle(0, cornerRad, 0, cornerRad))
+                            HorizontalPlayer(player: game.players.first(where: {$0.order == 2})!)
+                                .clipShape(UnevenRoundedRectangle(cornerRad, 0, cornerRad, 0))
+
                         }
                         VStack(spacing: 7) {
-                            HorizontalPlayer(player: game.players[2])
-                                .clipShape(Rectangle())
+                            HorizontalPlayer(player: game.players.first(where: {$0.order == 3})!)
+                                .clipShape(UnevenRoundedRectangle(cornerRad, 0, cornerRad, 0))
                                 .rotationEffect(.degrees(180))
-                            HorizontalPlayer(player: game.players[3], cornerRadii: [0,0,30,0])
-                                .clipShape(Rectangle())
+                            HorizontalPlayer(player: game.players.first(where: {$0.order == 4})!)
+                                .clipShape(UnevenRoundedRectangle(0, cornerRad, 0, cornerRad))
                                 .rotationEffect(.degrees(180))
                                 
                         }

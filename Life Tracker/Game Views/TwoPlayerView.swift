@@ -18,9 +18,9 @@ struct TwoPlayerView: View {
                 ZStack {
                     Color.black.ignoresSafeArea()
                     VStack(spacing: 7) {
-                        VerticalPlayer(player: game.players[0])
+                        VerticalPlayer(player: game.players.first(where: {$0.order == 1})!)
                             .rotationEffect(.degrees(180))
-                        VerticalPlayer(player: game.players[1])
+                        VerticalPlayer(player: game.players.first(where: {$0.order == 2})!)
                     }
                     .ignoresSafeArea()
                     

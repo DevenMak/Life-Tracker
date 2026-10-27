@@ -13,12 +13,7 @@ class GameSettings: ObservableObject {
     @Published var playerCount: Int = 0
     @Published var startingLife: Int = 0
     @Published var commander: Bool = false
-    @Published var game: Game? {
-        didSet {
-            game!.players = game!.players.sorted { $0.order < $1.order}
-        }
-        
-    }
+    @Published var game: Game?
 }
 
 struct PlayerCountSelection: View {

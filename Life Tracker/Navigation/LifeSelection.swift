@@ -100,6 +100,10 @@ struct LifeSelection: View {
             }
             .zIndex(1)
         }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            CustomBackButton()
+        }
     }
 }
 
