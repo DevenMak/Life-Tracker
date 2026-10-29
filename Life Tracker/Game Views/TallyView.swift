@@ -11,19 +11,20 @@ import SwiftData
 struct TallyView: View {
     @Environment(\.modelContext) private var context
     var player: Player
-    var tallySize: CGFloat
+    var tallySize: CGFloat?
     var tallyName: String
     var tally: Tally {
         player.tallies.first(where: {
             $0.name == tallyName
         })!
     }
+    
     var body: some View {
         let tallyColor = Color("\(tally.name)Color")
         ZStack {
             UnevenRoundedRectangle(30,30,30,30)
                 .fill(.white)
-                .frame(width: tallySize*2, height: tallySize*2)
+                .frame(width: multiplyTallySize(by: 2), height: multiplyTallySize(by: 2))
             VStack(spacing: 0) {
                 Button(action: {
                     tally.value += 1
@@ -31,7 +32,7 @@ struct TallyView: View {
                 }) {
                     UnevenRoundedRectangle(30,0,0,30)
                         .fill(tallyColor)
-                        .frame(width: tallySize*2, height: tallySize/2)
+                        .frame(width: multiplyTallySize(by: 2), height: multiplyTallySize(by: 0.5))
                 }
                 
                 Button(action: {
@@ -40,7 +41,7 @@ struct TallyView: View {
                 }) {
                     Rectangle()
                         .fill(tallyColor)
-                        .frame(width: tallySize*2, height: tallySize/2)
+                        .frame(width: multiplyTallySize(by: 2), height: multiplyTallySize(by: 0.5))
                 }
                 Button(action: {
                     tally.value += 1
@@ -48,7 +49,7 @@ struct TallyView: View {
                 }) {
                     Rectangle()
                         .fill(tallyColor)
-                        .frame(width: tallySize*2, height: tallySize/2)
+                        .frame(width: multiplyTallySize(by: 2), height: multiplyTallySize(by: 0.5))
                 }
                 Button(action: {
                     tally.value -= 1
@@ -56,7 +57,7 @@ struct TallyView: View {
                 }) {
                     UnevenRoundedRectangle(0,30,30,0)
                         .fill(tallyColor)
-                        .frame(width: tallySize*2, height: tallySize/2)
+                        .frame(width: multiplyTallySize(by: 2), height: multiplyTallySize(by: 0.5))
                 }
             }
             .overlay(
@@ -73,11 +74,14 @@ struct TallyView: View {
             )
         }
     }
+    func multiplyTallySize(by a: CGFloat) -> CGFloat? {
+        return tallySize.map { $0 * a }
+    }
 }
 
 struct TallyText: View {
     var tally: Tally
-    var tallySize: CGFloat
+    var tallySize: CGFloat?
     var body: some View {
         VStack(spacing: 0) {
 //            Image(systemName: "plus")
@@ -102,21 +106,7 @@ struct TallyText: View {
     }
 }
 
-struct ZoomTransition: Transition {
-    var size: CGFloat
-    var x: CGFloat
-    var y: CGFloat
 
-    func body(content: Content, phase: TransitionPhase) -> some View {
-        content
-            .mask {
-                RoundedRectangle(cornerRadius: 30)
-                    .frame(width: size, height: size)
-                    .scaleEffect(phase.isIdentity ? 1 : 0)
-                    .position(x: x, y: y)
-            }
-    }
-}
 
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)

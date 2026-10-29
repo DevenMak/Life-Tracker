@@ -10,7 +10,7 @@ import SwiftData
 
 struct FourPlayerView: View {
     @StateObject private var menuState: MenuState = .shared
-
+    @State var sharedTallySize: CGFloat?
     var game: Game
     var body: some View {
         GeometryReader { geo in
@@ -19,17 +19,17 @@ struct FourPlayerView: View {
                     Color.black.ignoresSafeArea()
                     HStack(spacing: 7) {
                         VStack(spacing: 7) {
-                            HorizontalPlayer(player: game.players.first(where: {$0.order == 1})!)
+                            HorizontalPlayer(player: game.players.first(where: {$0.order == 1})!, tallySize: sharedTallySize)
                                 .clipShape(UnevenRoundedRectangle(0, cornerRad, 0, cornerRad))
-                            HorizontalPlayer(player: game.players.first(where: {$0.order == 2})!)
+                            HorizontalPlayer(player: game.players.first(where: {$0.order == 2})!, tallySize: sharedTallySize)
                                 .clipShape(UnevenRoundedRectangle(cornerRad, 0, cornerRad, 0))
 
                         }
                         VStack(spacing: 7) {
-                            HorizontalPlayer(player: game.players.first(where: {$0.order == 3})!)
+                            HorizontalPlayer(player: game.players.first(where: {$0.order == 3})!, tallySize: sharedTallySize)
                                 .clipShape(UnevenRoundedRectangle(cornerRad, 0, cornerRad, 0))
                                 .rotationEffect(.degrees(180))
-                            HorizontalPlayer(player: game.players.first(where: {$0.order == 4})!)
+                            HorizontalPlayer(player: game.players.first(where: {$0.order == 4})!, tallySize: sharedTallySize)
                                 .clipShape(UnevenRoundedRectangle(0, cornerRad, 0, cornerRad))
                                 .rotationEffect(.degrees(180))
                                 
@@ -47,6 +47,9 @@ struct FourPlayerView: View {
                     Menu(game: game)
                         .zIndex(1)
                 }
+            }
+            .onPreferenceChange(MinSizePreferenceKey.self) { newValue in
+                sharedTallySize = newValue.isFinite ? newValue : nil
             }
         }
         .navigationBarBackButtonHidden(true)

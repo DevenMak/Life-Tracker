@@ -10,7 +10,7 @@ import SwiftData
 
 struct CommanderTally: View {
     var player: Player
-    var tallySize: CGFloat
+    var tallySize: CGFloat?
 
     var playerCount: Int {
         guard let game = player.game else { return 0 }
@@ -23,11 +23,13 @@ struct CommanderTally: View {
             .filter { $0 != player }
             .sorted { $0.order < $1.order }
     }
+    var totalSize: CGFloat? { tallySize.map { $0 * 2 } }
+    
     var body: some View {
         ZStack(alignment: .topTrailing) {
             UnevenRoundedRectangle(0,0,0,30)
                 .fill(.white)
-                .frame(width: tallySize * 2, height: tallySize * 2)
+                .frame(width: totalSize, height: totalSize)
             ZStack {
                 HStack(spacing: -1) {
                     ForEach(otherPlayers) { p in

@@ -107,16 +107,7 @@ struct LifeSelection: View {
     }
 }
 
-struct KeypadTransition: Transition {
 
-    func body(content: Content, phase: TransitionPhase) -> some View {
-        content
-            .mask {
-                content
-                    .scaleEffect(phase.isIdentity ? 1 : 0)
-            }
-    }
-}
 
 #Preview {
     LifeSelection()

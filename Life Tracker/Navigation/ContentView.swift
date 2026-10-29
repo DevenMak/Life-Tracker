@@ -8,10 +8,7 @@
 import SwiftUI
 import SwiftData
 
-class Path: ObservableObject {
-    public static var shared = Path()
-    @Published var navPath = NavigationPath()
-}
+
 enum Route: Hashable {
     case twoPlayerView
     case fourPlayerView

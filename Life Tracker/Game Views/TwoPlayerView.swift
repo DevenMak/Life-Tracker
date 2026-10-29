@@ -12,15 +12,16 @@ struct TwoPlayerView: View {
     @Environment(\.modelContext) private var context
     @StateObject private var menuState: MenuState = .shared
     var game: Game
+    @State var tallySize: CGFloat?
     var body: some View {
         GeometryReader { geo in
             ZStack {
                 ZStack {
                     Color.black.ignoresSafeArea()
                     VStack(spacing: 7) {
-                        VerticalPlayer(player: game.players.first(where: {$0.order == 1})!)
+                        VerticalPlayer(player: game.players.first(where: {$0.order == 1})!, tallySize: tallySize)
                             .rotationEffect(.degrees(180))
-                        VerticalPlayer(player: game.players.first(where: {$0.order == 2})!)
+                        VerticalPlayer(player: game.players.first(where: {$0.order == 2})!, tallySize: tallySize)
                     }
                     .ignoresSafeArea()
                     
@@ -36,6 +37,9 @@ struct TwoPlayerView: View {
                         .zIndex(1)
                 }
                 
+            }
+            .onPreferenceChange(MinSizePreferenceKey.self) { newValue in
+                tallySize = newValue.isFinite ? newValue : nil
             }
         }
         .navigationBarBackButtonHidden(true)

@@ -10,6 +10,7 @@ import SwiftData
 
 struct ThreePlayerViewZ: View {
     @StateObject var menuState = MenuState.shared
+    @State var sharedTallySize: CGFloat?
     var game: Game
     var body: some View {
         GeometryReader { geo in
@@ -17,13 +18,13 @@ struct ThreePlayerViewZ: View {
                 Color.black
                 ZStack {
                         VStack(spacing: 7) {
-                            HorizontalPlayer(player: game.players.first(where: {$0.order == 1})!)
+                            HorizontalPlayer(player: game.players.first(where: {$0.order == 1})!, tallySize: sharedTallySize)
                                 .clipShape(UnevenRoundedRectangle(0, cornerRad, cornerRad, 0))
                             
-                            HorizontalPlayer(player: game.players.first(where: {$0.order == 2})!)
+                            HorizontalPlayer(player: game.players.first(where: {$0.order == 2})!, tallySize: sharedTallySize)
                                 .clipShape(UnevenRoundedRectangle(cornerRad, cornerRad, cornerRad, cornerRad))
                                 .rotationEffect(.degrees(180))
-                            HorizontalPlayer(player: game.players.first(where: {$0.order == 3})!)
+                            HorizontalPlayer(player: game.players.first(where: {$0.order == 3})!, tallySize: sharedTallySize)
                                 .clipShape(UnevenRoundedRectangle(cornerRad,0,0,cornerRad))
                         }
                         
@@ -39,6 +40,9 @@ struct ThreePlayerViewZ: View {
                 }
             }
             .ignoresSafeArea()
+            .onPreferenceChange(MinSizePreferenceKey.self) { newValue in
+                sharedTallySize = newValue.isFinite ? newValue : nil
+            }
         }
         .navigationBarBackButtonHidden(true)
     }

@@ -10,6 +10,7 @@ import SwiftData
 
 struct HorizontalPlayer: View {
     var player: Player
+    var tallySize: CGFloat?
     var cornerRadii: [CGFloat] = [0,0,0,0]
     var playerTallies: [Tally] {
         player.tallies
@@ -36,19 +37,18 @@ struct HorizontalPlayer: View {
                     HorizontalPlayerText(player: player)
                 )
                 
-                let tallySize: CGFloat = geo.size.height/3.5
                 if let showingTally = playerTallies.first(where: {$0.order == 1}) {
                     if showingTally.name == "commander" {
                         CommanderTally(player: player, tallySize: tallySize)
                             .rotationEffect(.degrees(90))
                             .position(x: 0, y: 0)
-                            .transition(ZoomTransition(size: tallySize*2, x: 0, y: 0))
+                            .transition(ZoomTransition(size: multiplyTallySize(by: 2), x: 0, y: 0))
                             .zIndex(1)
                     } else {
                         TallyView(player: player, tallySize: tallySize, tallyName: showingTally.name)
                             .rotationEffect(.degrees(90))
                             .position(x: 0, y: 0)
-                            .transition(ZoomTransition(size: tallySize*2, x: 0, y: 0))
+                            .transition(ZoomTransition(size: multiplyTallySize(by: 2), x: 0, y: 0))
                             .zIndex(1)
                     }
                 }
@@ -57,11 +57,18 @@ struct HorizontalPlayer: View {
                     TallyView(player: player, tallySize: tallySize, tallyName: showingTally.name)
                         .rotationEffect(.degrees(90))
                         .position(x: 0, y: geo.size.height)
-                        .transition(ZoomTransition(size: tallySize*2, x: 0, y: geo.size.height))
+                        .transition(ZoomTransition(size: multiplyTallySize(by: 2), x: 0, y: geo.size.height))
                         .zIndex(1)
                 }
             }
+            .reportMinSize { size in
+                min(size.width / 1.5, size.height / 3)
+            }
         }
+    }
+    
+    func multiplyTallySize(by a: CGFloat) -> CGFloat? {
+        tallySize.map { $0 * a }
     }
     
 }

@@ -228,22 +228,6 @@ struct DefaultTallyButton: View {
     }
 }
 
-class MenuState: ObservableObject {
-    public static var shared = MenuState()
-    @Published var showMenu: Bool = false
-    
-    func setShowMenu(_ showMenu: Bool) {
-        withAnimation {
-            self.showMenu = showMenu
-        }
-    }
-}
-
-class TallyTracker: ObservableObject {
-    public static var shared = TallyTracker()
-    @Published var orderToBeRemoved: Int = 1
-}
-
 struct Picker: View {
     var body: some View {
         Image(systemName: "arrow.down")

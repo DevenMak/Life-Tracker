@@ -8,14 +8,6 @@
 import SwiftUI
 import SwiftData
 
-class GameSettings: ObservableObject {
-    public static var shared = GameSettings()
-    @Published var playerCount: Int = 0
-    @Published var startingLife: Int = 0
-    @Published var commander: Bool = false
-    @Published var game: Game?
-}
-
 struct PlayerCountSelection: View {
     @StateObject var gameSettings: GameSettings = .shared
     @Environment(\.modelContext) private var context
