@@ -17,28 +17,27 @@ struct FourPlayerViewPlus: View {
             ZStack {
                 ZStack {
                     Color.black.ignoresSafeArea()
-                    HStack(spacing: 7) {
-                        VStack(spacing: 7) {
-                            HorizontalPlayer(player: game.players.first(where: {$0.order == 1})!, tallySize: sharedTallySize)
-                                .clipShape(UnevenRoundedRectangle(0, cornerRad, 0, cornerRad))
+                    VStack(spacing: 7) {
+                        VerticalPlayer(player: game.players.first(where: {$0.order == 1})!, tallySize: sharedTallySize)
+                            .rotationEffect(.degrees(180))
+                            .frame(height: UIScreen.main.bounds.height / 4 - 3.5)
+                        HStack(spacing: 7) {
                             HorizontalPlayer(player: game.players.first(where: {$0.order == 2})!, tallySize: sharedTallySize)
-                                .clipShape(UnevenRoundedRectangle(cornerRad, 0, cornerRad, 0))
+                                .clipShape(UnevenRoundedRectangle(cornerRad, cornerRad, cornerRad, cornerRad))
+                            HorizontalPlayer(player: game.players.first(where: {$0.order == 3})!, tallySize: sharedTallySize)
+                                .rotationEffect(.degrees(180))
+                                .clipShape(UnevenRoundedRectangle(cornerRad, cornerRad, cornerRad, cornerRad))
 
                         }
-                        VStack(spacing: 7) {
-                            HorizontalPlayer(player: game.players.first(where: {$0.order == 3})!, tallySize: sharedTallySize)
-                                .clipShape(UnevenRoundedRectangle(cornerRad, 0, cornerRad, 0))
-                                .rotationEffect(.degrees(180))
-                            HorizontalPlayer(player: game.players.first(where: {$0.order == 4})!, tallySize: sharedTallySize)
-                                .clipShape(UnevenRoundedRectangle(0, cornerRad, 0, cornerRad))
-                                .rotationEffect(.degrees(180))
-                                
-                        }
+                        VerticalPlayer(player: game.players.first(where: {$0.order == 4})!, tallySize: sharedTallySize)
+                            .frame(height: UIScreen.main.bounds.height / 4 - 3.5)
+                        
                     }
                     .ignoresSafeArea()
                     
                     MenuButton()
-                        .offset(y: -0.5*(geo.safeAreaInsets.top-geo.safeAreaInsets.bottom))
+                        .position(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 4)
+                        .ignoresSafeArea()
                 }
                 .compositingGroup()
                 .blur(radius: menuState.showMenu ? 5 : 0)

@@ -19,26 +19,30 @@ struct PlayerCountSelection: View {
                 Text("Player Count")
                     .heading()
                     .foregroundStyle(.white)
-                    .padding(50)
+                    .padding()
                 Button(action: {
                     gameSettings.playerCount = 2
-                    startNewGame()
-                    Path.shared.navPath.append(Route.twoPlayerView)
+                    Path.shared.navPath.append(Route.layoutSelection)
                 }) {
                     PlayerButton(numPlayers: 2)
                 }
                 .padding(40)
                 
                 Button(action: {
+                    gameSettings.playerCount = 3
+                    Path.shared.navPath.append(Route.layoutSelection)
+                }) {
+                    PlayerButton(numPlayers: 3)
+                }
+                .padding(40)
+                
+                Button(action: {
                     gameSettings.playerCount = 4
-                    startNewGame()
-                    Path.shared.navPath.append(Route.fourPlayerView)
+                    Path.shared.navPath.append(Route.layoutSelection)
                 }) {
                     PlayerButton(numPlayers: 4)
                 }
                 .padding(40)
-
-                Spacer()
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -46,13 +50,6 @@ struct PlayerCountSelection: View {
              CustomBackButton()
         }
 
-    }
-    
-    func startNewGame() {
-        let game = Game(playerCount: gameSettings.playerCount, startingLife: gameSettings.startingLife, commander: gameSettings.commander)
-        context.insert(game)
-        gameSettings.game = game
-        try? context.save()
     }
 }
 

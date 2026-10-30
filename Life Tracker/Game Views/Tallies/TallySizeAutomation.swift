@@ -51,7 +51,7 @@ extension View {
     func reportMinSize(computedBy: @escaping (CGSize) -> CGFloat) -> some View {
         self.background (
             GeometryReader { geo in
-                Color.red
+                Color.clear
                     .preference(key: MinSizePreferenceKey.self, value: computedBy(geo.size))
             }
             

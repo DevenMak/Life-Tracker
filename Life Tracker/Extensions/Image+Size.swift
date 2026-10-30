@@ -16,3 +16,12 @@ extension Image {
             .frame(width: size, height: size)
     }
 }
+
+extension Image {
+    public func resize(to width: CGFloat) -> some View {
+        self
+            .resizable()
+            .scaledToFit()
+            .frame(width: width)
+    }
+}

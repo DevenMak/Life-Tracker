@@ -15,6 +15,10 @@ enum Route: Hashable {
     case playerCountSelection
     case lifeSelection
     case savedGames
+    case fourPlayerPlusView
+    case threePlayerYView
+    case threePlayerZView
+    case layoutSelection
 }
 
 struct ContentView: View {
@@ -26,14 +30,12 @@ struct ContentView: View {
         NavigationStack(path: $path.navPath) {
             ZStack {
                 Color.black.ignoresSafeArea()
+                
                 VStack {
                     Text("Life Tracker")
                         .heading()
                         .foregroundStyle(.white)
                         .padding()
-                    Spacer()
-                }
-                VStack(spacing: 100) {
                     Button(action: {
                         GameSettings.shared.startingLife = 20
                         path.navPath.append(Route.lifeSelection)
@@ -49,7 +51,8 @@ struct ContentView: View {
                                     .stroke(.accent, lineWidth: 2)
                                 
                             )
-                            
+                            .padding(60)
+                        
                     }
                     Button(action: {
                         path.navPath.append(Route.savedGames)
@@ -65,7 +68,9 @@ struct ContentView: View {
                                     .stroke(.accent, lineWidth: 2)
                                 
                             )
+                            .padding(60)
                     }
+                    Spacer()
                 }
             }
             .navigationDestination(for: Route.self) { route in
@@ -74,10 +79,18 @@ struct ContentView: View {
                     FourPlayerView(game: GameSettings.shared.game!)
                 case .twoPlayerView:
                     TwoPlayerView(game: GameSettings.shared.game!)
+                case .fourPlayerPlusView:
+                    FourPlayerViewPlus(game: GameSettings.shared.game!)
+                case .threePlayerYView:
+                    ThreePlayerViewY(game: GameSettings.shared.game!)
+                case .threePlayerZView:
+                    ThreePlayerViewZ(game: GameSettings.shared.game!)
                 case .playerCountSelection:
                     PlayerCountSelection()
                 case .savedGames:
                     SavedGames()
+                case .layoutSelection:
+                    LayoutSelection()
                 case .lifeSelection:
                     LifeSelection()
                 

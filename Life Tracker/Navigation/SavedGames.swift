@@ -106,7 +106,7 @@ struct GameRow: View {
             Spacer()
              Button(action: {
                  GameSettings.shared.game = game
-                 Path.shared.navPath.append(game.players.count == 2 ? Route.twoPlayerView : Route.fourPlayerView)
+                 Path.shared.navPath.append(getRoute(playerCount: game.players.count, layout: game.layout))
              }) {
                  Text("Resume")
                      .avenirMedium(17)
@@ -132,7 +132,6 @@ struct GameRow: View {
     game.date = Date(timeIntervalSinceNow: -86400*10)
     container.mainContext.insert(game)
     container.mainContext.insert(game2)
-
 
     return SavedGames()
         .modelContainer(container)

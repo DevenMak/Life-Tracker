@@ -13,7 +13,12 @@ struct LifeSelection: View {
         ZStack {
             Color.black.ignoresSafeArea()
             
-            VStack(spacing: 80) {
+            VStack {
+                Text("Life Selection")
+                    .heading()
+                    .foregroundStyle(.white)
+                    .padding()
+                
                 //20 Button
                 Button(action: {
                     GameSettings.shared.startingLife = 20
@@ -35,6 +40,7 @@ struct LifeSelection: View {
                             .foregroundStyle(.white)
                     }
                 }
+                .padding(30)
                 //40 Button
                 Button(action: {
                     GameSettings.shared.startingLife = 40
@@ -54,9 +60,11 @@ struct LifeSelection: View {
                         Text("Commander")
                             .avenir(30)
                             .foregroundStyle(.white)
-
+                        
                     }
                 }
+                .padding(30)
+
                 //Custom Button
                 Button(action: {
                     withAnimation(.easeInOut(duration: 0.35)) { showKeypad.toggle() }
@@ -74,11 +82,15 @@ struct LifeSelection: View {
                         Text("Custom")
                             .avenir(30)
                             .foregroundStyle(.white)
-
+                        
                     }
+
                 }
+                .padding(30)
+                Spacer()
             }
             .ignoresSafeArea(edges: .bottom)
+            
             if showKeypad {
                 Color.black.ignoresSafeArea()
                     .onTapGesture {
@@ -89,16 +101,6 @@ struct LifeSelection: View {
                     .transition(KeypadTransition())
                     .zIndex(1)
             }
-            
-            VStack {
-                Text("Life Selection")
-                    .heading()
-                    .foregroundStyle(.white)
-                    .padding()
-
-                Spacer()
-            }
-            .zIndex(1)
         }
         .navigationBarBackButtonHidden(true)
         .toolbar {

@@ -33,5 +33,6 @@ class GameSettings: ObservableObject {
     @Published var playerCount: Int = 0
     @Published var startingLife: Int = 0
     @Published var commander: Bool = false
+    @Published var layout: String = ""
     @Published var game: Game?
 }

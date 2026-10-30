@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct HorizontalPlayer: View {
+    @State var count: Int = 0
     var player: Player
     var tallySize: CGFloat?
     var cornerRadii: [CGFloat] = [0,0,0,0]
@@ -18,15 +19,19 @@ struct HorizontalPlayer: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                HStack(spacing: 0) {
+                UnevenRoundedRectangle(cornerRadii[0], cornerRadii[1], cornerRadii[2], cornerRadii[3])
+                    .fill(.white)
+                HStack(spacing: -1) {
                     Button(action: {
                         player.life -= 1
+                        count-=1
                     }) {
                         UnevenRoundedRectangle(cornerRadii[0], cornerRadii[1], 0, 0)
                             .fill(Color("Player2.\(player.order)"))
                     }
                     Button(action: {
                         player.life += 1
+                        count+=1
                     }) {
                         UnevenRoundedRectangle(0, 0, cornerRadii[2], cornerRadii[3])
                             .fill(Color("Player2.\(player.order)"))
@@ -60,6 +65,11 @@ struct HorizontalPlayer: View {
                         .transition(ZoomTransition(size: multiplyTallySize(by: 2), x: 0, y: geo.size.height))
                         .zIndex(1)
                 }
+                
+                ActiveCounter(count: $count)
+                    .rotationEffect(.degrees(90))
+                    .offset(x: 70, y: 5)
+                
             }
             .reportMinSize { size in
                 min(size.width / 1.5, size.height / 3)

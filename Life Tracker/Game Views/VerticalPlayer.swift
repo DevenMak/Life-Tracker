@@ -15,6 +15,7 @@ struct VerticalPlayer: View {
     var player: Player
     var tallySize: CGFloat?
     @State var showTally: Bool = false
+    @State var count: Int = 0
     @Query private var allTallies: [Tally]
     var playerTallies: [Tally] {
         allTallies
@@ -31,6 +32,7 @@ struct VerticalPlayer: View {
                     //Add Life Button
                     Button(action: {
                         player.life += 1
+                        count += 1
                         try? context.save()
                     }) {
                         UnevenRoundedRectangle(cornerRad,0,0,cornerRad)
@@ -38,6 +40,7 @@ struct VerticalPlayer: View {
                     }
                     Button(action: {
                         player.life -= 1
+                        count -= 1
                         try? context.save()
                     }) {
                         UnevenRoundedRectangle(0,0,0,0)
@@ -69,6 +72,9 @@ struct VerticalPlayer: View {
                 
                 text
                 
+                ActiveCounter(count: $count)
+                    .offset(x: 0, y: -70)
+                
             }
             .reportMinSize(computedBy: { size in
                 size.width / 3
@@ -99,6 +105,41 @@ struct VerticalPlayer: View {
         .allowsHitTesting(false)
     }
     
+}
+
+struct ActiveCounter: View {
+    let timer = Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()
+    
+    @State var reloadTime = 1.0
+    @State var timeRemaining = 0.0
+    @State var refreshable: Bool = true
+    @Binding var count: Int
+    var body: some View {
+        Text("\(count > 0 ? "+" : count == 0 ? "" : "-")\(abs(count))")
+            .rubik(25)
+            .foregroundStyle(.white)
+            .scaleEffect(1.25*(max(1-(reloadTime-timeRemaining)/reloadTime, 0.6)))
+            .opacity(timeRemaining/reloadTime*1.7)
+            .onReceive(timer) { _ in
+                if(timeRemaining > 0) {
+                    timeRemaining -= 0.01
+                }
+                if(timeRemaining <= 0 && count != 0) {
+                    refreshable = false
+                    count = 0
+                    timeRemaining = 0
+                }
+            }
+            .offset(x: 75)
+            .onChange(of: count) { oldValue, newValue in
+                if refreshable {
+                    timeRemaining = reloadTime
+                }
+                refreshable = true
+            }
+            .allowsHitTesting(false)
+        
+    }
 }
 
 

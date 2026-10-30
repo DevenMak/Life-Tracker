@@ -16,12 +16,14 @@ class Game {
     var players: [Player]
     var date: Date
     var commander: Bool
+    var layout: String
     
-    init(playerCount: Int, startingLife: Int, commander: Bool = false) {
+    init(playerCount: Int, startingLife: Int, commander: Bool = false, layout: String = "") {
         self.id = UUID()
         self.date = Date()
         self.players = []
         self.commander = commander
+        self.layout = layout
         
         for i in 1...playerCount {
             let player = Player(order: i, life: startingLife)
