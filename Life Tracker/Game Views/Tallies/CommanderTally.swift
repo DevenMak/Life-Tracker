@@ -35,7 +35,9 @@ struct CommanderTally: View {
                     ForEach(otherPlayers) { p in
                         VStack(spacing: -1) {
                             Button(action: {
-                                player.comDamages[p.order] += 1
+                                if player.comDamages[p.order] < 99 {
+                                    player.comDamages[p.order] += 1
+                                }
                             }) {
                                 UnevenRoundedRectangle(0,0,0, p == otherPlayers.last ? 30 : 0)
                                     .fill(Color("Player2.\(p.order)"))
@@ -43,7 +45,9 @@ struct CommanderTally: View {
                                 
                             }
                             Button(action: {
-                                player.comDamages[p.order] -= 1
+                                if player.comDamages[p.order] > 0 {
+                                    player.comDamages[p.order] -= 1
+                                }
                             }) {
                                 Rectangle()
                                     .fill(Color("Player2.\(p.order)"))
@@ -57,18 +61,6 @@ struct CommanderTally: View {
                         )
                     }
                 }
-//                VStack(spacing: 0) {
-//                    Image(systemName: "plus")
-//                        .font(.system(size: 10, weight: .bold))
-//                        .padding(.top, 5)
-//                    
-//                    Spacer()
-//                    Image(systemName: "minus")
-//                        .font(.system(size: 10, weight: .bold))
-//                        .padding(.bottom, 5)
-//                }
-//                .foregroundStyle(.white)
-//                .allowsHitTesting(false)
                 
                 VStack {
                     Spacer()
@@ -97,7 +89,7 @@ struct CommanderText: View {
         VStack {
             Spacer()
             Text("\(player.comDamages[order])")
-                .rubikMedium(20)
+                .rubikMedium(25)
             Spacer()
         }
         .foregroundStyle(contrastTextColor(Color("Player2.\(1)")))

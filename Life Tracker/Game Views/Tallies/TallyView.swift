@@ -27,8 +27,10 @@ struct TallyView: View {
                 .frame(width: multiplyTallySize(by: 2), height: multiplyTallySize(by: 2))
             VStack(spacing: 0) {
                 Button(action: {
-                    tally.value += 1
-                    try? context.save()
+                    if tally.value < 99 {
+                        tally.value += 1
+                        try? context.save()
+                    }
                 }) {
                     UnevenRoundedRectangle(30,0,0,30)
                         .fill(tallyColor)
@@ -36,24 +38,30 @@ struct TallyView: View {
                 }
                 
                 Button(action: {
-                    tally.value -= 1
-                    try? context.save()
+                    if tally.value > 0 {
+                        tally.value -= 1
+                        try? context.save()
+                    }
                 }) {
                     Rectangle()
                         .fill(tallyColor)
                         .frame(width: multiplyTallySize(by: 2), height: multiplyTallySize(by: 0.5))
                 }
                 Button(action: {
-                    tally.value += 1
-                    try? context.save()
+                    if tally.value < 99 {
+                        tally.value += 1
+                        try? context.save()
+                    }
                 }) {
                     Rectangle()
                         .fill(tallyColor)
                         .frame(width: multiplyTallySize(by: 2), height: multiplyTallySize(by: 0.5))
                 }
                 Button(action: {
-                    tally.value -= 1
-                    try? context.save()
+                    if tally.value > 0 {
+                        tally.value -= 1
+                        try? context.save()
+                    }
                 }) {
                     UnevenRoundedRectangle(0,30,30,0)
                         .fill(tallyColor)

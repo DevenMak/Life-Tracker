@@ -23,15 +23,19 @@ struct HorizontalPlayer: View {
                     .fill(.white)
                 HStack(spacing: -1) {
                     Button(action: {
-                        player.life -= 1
-                        count-=1
+                        if player.life > 0 {
+                            player.life -= 1
+                            count-=1
+                        }
                     }) {
                         UnevenRoundedRectangle(cornerRadii[0], cornerRadii[1], 0, 0)
                             .fill(Color("Player2.\(player.order)"))
                     }
                     Button(action: {
-                        player.life += 1
-                        count+=1
+                        if player.life < 999 {
+                            player.life += 1
+                            count+=1
+                        }
                     }) {
                         UnevenRoundedRectangle(0, 0, cornerRadii[2], cornerRadii[3])
                             .fill(Color("Player2.\(player.order)"))

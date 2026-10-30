@@ -31,17 +31,21 @@ struct VerticalPlayer: View {
                 VStack(spacing: -0.5) {
                     //Add Life Button
                     Button(action: {
-                        player.life += 1
-                        count += 1
-                        try? context.save()
+                        if player.life < 999 {
+                            player.life += 1
+                            count += 1
+                            try? context.save()
+                        }
                     }) {
                         UnevenRoundedRectangle(cornerRad,0,0,cornerRad)
                             .fill(Color("Player2.\(player.order)"))
                     }
                     Button(action: {
-                        player.life -= 1
-                        count -= 1
-                        try? context.save()
+                        if player.life > 0 {
+                            player.life -= 1
+                            count -= 1
+                            try? context.save()
+                        }
                     }) {
                         UnevenRoundedRectangle(0,0,0,0)
                             .fill(Color("Player2.\(player.order)"))

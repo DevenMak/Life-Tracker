@@ -40,6 +40,10 @@ struct LayoutSelection: View {
             }
             
         }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            CustomBackButton()
+        }
     }
 }
 
